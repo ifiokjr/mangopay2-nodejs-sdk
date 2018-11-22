@@ -3,6 +3,8 @@ import MangoPay from "mangopay2-nodejs-sdk";
 // $ExpectError
 const invalidConfig: MangoPay.Config = {};
 
+/* General Types */
+
 const validConfig: MangoPay.Config = {
   clientId: "your_client_id",
   clientApiKey: "your_client_api_key",
@@ -11,6 +13,8 @@ const validConfig: MangoPay.Config = {
 
 // $ExpectType MangoPay
 const api = new MangoPay(validConfig);
+
+/* Users */
 
 const legalUser = new MangoPay.models.UserLegal({
   Name: "MangoPay",
@@ -143,12 +147,91 @@ api.Users.getWallets("userId").then(data => {
   const d = data; // $ExpectType WalletData[]
 });
 
-api.BankAccounts.getTransactions("accountId").then(data => {
+api.Users.getCards("userId").then(data => {
+  const d = data; // $ExpectType CardData[]
+});
+
+api.Users.createKycDocument("userId", { Type: "ADDRESS_PROOF" }).then(data => {
+  const d = data; // $ExpectType KycDocumentData
+});
+
+api.Users.getKycDocuments("userId").then(data => {
+  const d = data; // $ExpectType KycDocumentData[]
+});
+
+api.Users.getKycDocument("userId", "kycDocumentId").then(data => {
+  const d = data; // $ExpectType KycDocumentData
+});
+
+api.Users.updateKycDocument("userId", { Status: "VALIDATION_ASKED" }).then(
+  data => {
+    const d = data; // $ExpectType KycDocumentData
+  }
+);
+
+api.Users.createKycPage("userId", "kycDocumentId", {
+  File: "...base64data..."
+}).then(data => {
+  const d = data; // $ExpectType KycDocumentData
+});
+
+api.Users.createKycPageFromFile("userId", "kycDocumentId", "path/to/file").then(
+  data => {
+    const d = data; // $ExpectType KycDocumentData
+  }
+);
+
+api.Users.getEMoney("userId").then(data => {
+  const d = data; // $ExpectType EMoneyData
+});
+
+api.Users.createUboDeclaration("userId", { DeclaredUBOs: ["user1"] }).then(
+  data => {
+    const d = data; // $ExpectType UboDeclarationData
+  }
+);
+
+api.Users.getPreAuthorizations("userId").then(data => {
+  const d = data; // $ExpectType CardPreAuthorizationData[]
+});
+
+/* KycDocuments */
+
+api.KycDocuments.getAll().then(data => {
+  const d = data; // $ExpectType KycDocumentData[]
+});
+
+api.KycDocuments.get("kyc-id").then(data => {
+  const d = data; // $ExpectType KycDocumentData
+});
+
+api.KycDocuments.createKycDocumentConsult("kyc-id").then(data => {
+  const d = data; // TODO unsure of expected type
+});
+
+/* UboDeclarations */
+
+api.UboDeclarations.get("ubo-id").then(data => {
+  const d = data; // $ExpectType UboDeclarationData
+});
+
+api.UboDeclarations.update({
+  Id: "ubo-id",
+  DeclaredUBOs: ["user1", "user2"]
+}).then(data => {
+  const d = data; // $ExpectType UboDeclarationData
+});
+
+/* BankAccounts */
+
+api.BankAccounts.getTransactions("account-id").then(data => {
   const d = data; // $ExpectType TransactionData[]
 });
 
+/* Wallets */
+
 api.Wallets.create({
-  Currency: "GB",
+  Currency: "GBP",
   Description: "A description",
   Owners: ["userId"]
 }).then(data => {
@@ -177,4 +260,57 @@ api.Wallets.get("walletId").then(data => {
 
 api.Wallets.getTransactions("walletId").then(data => {
   const d = data; // $ExpectType TransactionData[]
+});
+
+/* Cards */
+
+api.Cards.get("card-id").then(data => {
+  const d = data; // $ExpectType CardData
+});
+api.Cards.getByFingerprint("fingerprinthash").then(data => {
+  const d = data; // $ExpectType CardData[]
+});
+api.Cards.update({ Active: false, Id: "card-id" }).then(data => {
+  const d = data; // $ExpectType CardData
+});
+api.Cards.getTransactions("cardId").then(data => {
+  const d = data; // $ExpectType TransactionData[]
+});
+
+/* CardRegistrations */
+
+api.CardRegistrations.create({
+  CardType: "BCMC",
+  Currency: "GBP",
+  UserId: "user-id"
+}).then(data => {
+  const d = data; // $ExpectType CardRegistrationData
+});
+api.CardRegistrations.get("reg-id").then(data => {
+  const d = data; // $ExpectType CardRegistrationData
+});
+api.CardRegistrations.update({ RegistrationData: "hmmm" }).then(data => {
+  const d = data; // $ExpectType CardRegistrationData
+});
+
+/* CardPreAuthorizations */
+
+api.CardPreAuthorizations.create({
+  AuthorId: "user",
+  CardId: "card-id",
+  DebitedFunds: { Currency: "AUD", Amount: 4000 },
+  SecureModeRedirectUrl: "https://secureurl.com"
+}).then(data => {
+  const d = data; // $ExpectType CardPreAuthorizationData
+});
+
+api.CardPreAuthorizations.get("auth-id").then(data => {
+  const d = data; // $ExpectType CardPreAuthorizationData
+});
+
+api.CardPreAuthorizations.update({
+  Id: "auth-id",
+  PaymentStatus: "CANCELED"
+}).then(data => {
+  const d = data; // $ExpectType CardPreAuthorizationData
 });
