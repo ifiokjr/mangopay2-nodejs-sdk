@@ -267,12 +267,15 @@ api.Wallets.getTransactions("walletId").then(data => {
 api.Cards.get("card-id").then(data => {
   const d = data; // $ExpectType CardData
 });
+
 api.Cards.getByFingerprint("fingerprinthash").then(data => {
   const d = data; // $ExpectType CardData[]
 });
+
 api.Cards.update({ Active: false, Id: "card-id" }).then(data => {
   const d = data; // $ExpectType CardData
 });
+
 api.Cards.getTransactions("cardId").then(data => {
   const d = data; // $ExpectType TransactionData[]
 });
@@ -286,9 +289,11 @@ api.CardRegistrations.create({
 }).then(data => {
   const d = data; // $ExpectType CardRegistrationData
 });
+
 api.CardRegistrations.get("reg-id").then(data => {
   const d = data; // $ExpectType CardRegistrationData
 });
+
 api.CardRegistrations.update({ RegistrationData: "hmmm" }).then(data => {
   const d = data; // $ExpectType CardRegistrationData
 });
@@ -313,4 +318,51 @@ api.CardPreAuthorizations.update({
   PaymentStatus: "CANCELED"
 }).then(data => {
   const d = data; // $ExpectType CardPreAuthorizationData
+});
+
+/* Refunds */
+
+api.Refunds.get("refundId").then(data => {
+  const d = data; // $ExpectType RefundData
+});
+
+/* PayIns */
+
+api.PayIns.create({
+  PaymentType: "CARD",
+  ExecutionType: "DIRECT",
+  AuthorId: "userId",
+  CardId: "cardId",
+  CreditedWalletId: "walletId",
+  Fees: { Amount: 100, Currency: "GBP" },
+  DebitedFunds: { Amount: 2000, Currency: "GBP" },
+  SecureModeReturnURL: "https://secure-return.co"
+}).then(data => {
+  const d = data; // $ExpectType CardDirectPayInData
+});
+
+api.PayIns.create({
+  PaymentType: "CARD",
+  ExecutionType: "WEB",
+  AuthorId: "userId",
+  CreditedWalletId: "walletId",
+  Fees: { Amount: 100, Currency: "GBP" },
+  DebitedFunds: { Amount: 2000, Currency: "GBP" },
+  ReturnURL: "https://secure-return.co",
+  Culture: "AD",
+  CardType: "MAESTRO"
+}).then(data => {
+  const d = data; // $ExpectType CardWebPayInData
+});
+
+api.PayIns.get("payInId").then(data => {
+  const d = data; // $ExpectType PayInData
+});
+
+api.PayIns.createRefund("payInId", { AuthorId: "user-id" }).then(data => {
+  const d = data; // $ExpectType RefundData
+});
+
+api.PayIns.getRefunds("payInId").then(data => {
+  const d = data; // $ExpectType RefundData[]
 });

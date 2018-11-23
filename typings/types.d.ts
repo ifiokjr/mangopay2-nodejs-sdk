@@ -29,6 +29,8 @@ export type DeepPartial<T> = {
 
 export type OmitType<T extends { Type: string }> = Omit<T, "Type">;
 
+export type ValueOf<T> = T[keyof T];
+
 export type ApiMethod =
   | "authentication_oauth"
   | "responses_get"

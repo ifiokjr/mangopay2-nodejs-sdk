@@ -11,7 +11,8 @@ import {
   MakeKeysRequired,
   Omit,
   DeepPartial,
-  OmitType
+  OmitType,
+  ValueOf
 } from "./types";
 
 export = MangoPay;
@@ -28,6 +29,8 @@ declare class MangoPay {
   Cards: MangoPay.Cards;
   CardRegistrations: MangoPay.CardRegistrations;
   CardPreAuthorizations: MangoPay.CardPreAuthorizations;
+  PayIns: MangoPay.PayIns;
+  Refunds: MangoPay.Refunds;
 
   Log(...args: any[]): void;
   authorize(callback: (data: MangoPay.AuthorizationData) => void): void;
@@ -70,12 +73,15 @@ declare namespace MangoPay {
   type PreAuthorizationExecutionType = "DIRECT";
   type PaymentStatus = "WAITING" | "CANCELED" | "EXPIRED" | "VALIDATED";
   type PreAuthorizationStatus = "CREATED" | "SUCCEEDED" | "FAILED";
+  interface BillingData {
+    Address: Address | Address.AddressData | string;
+  }
 
-  interface SecurityInfo {
+  interface SecurityInfoData {
     AVSResult: AVSResult;
   }
 
-  interface Money {
+  interface MoneyData {
     /**
      * The currency - should be ISO_4217 format
      */
@@ -278,9 +284,6 @@ declare namespace MangoPay {
     [key: string]: string | number | boolean;
   }
 
-  // type FilterOptions<T extends {}> = BaseFilterOptions &
-  //   { [P in T]?: T[P] extends string ? T[P] : never };
-
   interface MethodOptions extends DeepPartial<RequestOptions> {
     data?: WithToJson<object> | string;
     parameters?: FilterOptions & PaginationOptions;
@@ -326,6 +329,161 @@ declare namespace MangoPay {
   interface Model<T extends {}> extends ModelMethods<T> {}
 
   namespace models {
+    interface IPayInExecutionType {
+      Direct: "DIRECT";
+      Web: "WEB";
+    }
+    const PayInExecutionType: IPayInExecutionType;
+
+    interface IPayInPaymentType {
+      BankWire: "BANK_WIRE";
+      Card: "CARD";
+      DirectDebit: "DIRECT_DEBIT";
+      Preauthorized: "PREAUTHORIZED";
+      PayPal: "PAYPAL";
+    }
+    const PayInPaymentType: IPayInPaymentType;
+
+    interface IMandateStatus {
+      Created: "CREATED";
+      Submitted: "SUBMITTED";
+      Active: "ACTIVE";
+      Failed: "FAILED";
+    }
+    const MandateStatus: IMandateStatus;
+
+    interface ILegalPersonType {
+      NotSpecified: "NotSpecified";
+      Business: "BUSINESS";
+      Organization: "ORGANIZATION";
+      Soletrader: "SOLETRADER";
+    }
+    const LegalPersonType: ILegalPersonType;
+
+    interface IPersonType {
+      NotSpecified: "NotSpecified";
+      Natural: "NATURAL";
+      Legal: "LEGAL";
+    }
+    const PersonType: IPersonType;
+
+    interface IBankAccountType {
+      NotSpecified: "NotSpecified";
+      IBAN: "IBAN";
+      GB: "GB";
+      US: "US";
+      CA: "CA";
+      OTHER: "OTHER";
+    }
+    const BankAccountType: IBankAccountType;
+
+    interface IDeclaredUboStatus {
+      Created: "CREATED";
+      Validated: "VALIDATED";
+      Refused: "REFUSED";
+    }
+    const DeclaredUboStatus: IDeclaredUboStatus;
+
+    interface IKycDocumentStatus {
+      Created: "CREATED";
+      ValidationAsked: "VALIDATION_ASKED";
+      Validated: "VALIDATED";
+      Refused: "REFUSED";
+    }
+    const KycDocumentStatus: IKycDocumentStatus;
+
+    interface IKycDocumentType {
+      IdentityProof: "IDENTITY_PROOF";
+      RegistrationProof: "REGISTRATION_PROOF";
+      ArticlesOfAssociation: "ARTICLES_OF_ASSOCIATION";
+      ShareholderDeclaration: "SHAREHOLDER_DECLARATION";
+      AddressProof: "ADDRESS_PROOF";
+    }
+    const KycDocumentType: IKycDocumentType;
+
+    interface IPayOutPaymentType {
+      BankWire: "BANK_WIRE";
+    }
+    const PayOutPaymentType: IPayOutPaymentType;
+
+    interface IPlatformType {
+      NotSpecified: "NotSpecified";
+      MARKETPLACE: "MARKETPLACE";
+      P2P_PAYMENT: "P2P_PAYMENT";
+      CROWDFUNDING_DONATION: "CROWDFUNDING_DONATION";
+      CROWDFUNDING_REWARD: "CROWDFUNDING_REWARD";
+      CROWDFUNDING_EQUITY: "CROWDFUNDING_EQUITY";
+      CROWDFUNDING_LOAN: "CROWDFUNDING_LOAN";
+      OTHER: "OTHER";
+    }
+    const PlatformType: IPlatformType;
+
+    interface IUboDeclarationRefusedReasonType {
+      /**
+       * When at least one natural user is missing on the declaration
+       */
+      MissingUbo: "MISSING_UBO";
+      /**
+       * When at least one natural user should not be declared as UBO
+       */
+      InvalidDeclaredUbo: "INVALID_DECLARED_UBO";
+      /**
+       * When at least one natural user declared as UBO has been created
+       * with wrong details (i.e. date of birth, country of residence)
+       */
+      InvalidUboDetails: "INVALID_UBO_DETAILS";
+    }
+    const UboDeclarationRefusedReasonType: IUboDeclarationRefusedReasonType;
+
+    interface IUboDeclarationStatus {
+      /**
+       * When the UBO declaration was created
+       */
+      Created: "CREATED";
+      /**
+       * When validation has been requested for the UBO declaration
+       */
+      ValidationAsked: "VALIDATION_ASKED";
+      /**
+       * When the UBO declaration was validated
+       */
+      Validated: "VALIDATED";
+      /**
+       * When the UBO declaration was refused
+       */
+      Refused: "REFUSED";
+    }
+    const UboDeclarationStatus: IUboDeclarationStatus;
+
+    interface IUboRefusedReasonType {
+      /**
+       * When user should not be declared as UBO
+       */
+      InvalidDeclaredUbo: "INVALID_DECLARED_UBO";
+      /**
+       * When user declared as UBO was created with wrong
+       * details (i.e. date of birth, country of residence)
+       */
+      InvalidUboDetails: "INVALID_UBO_DETAILS";
+    }
+    const UboRefusedReasonType: IUboRefusedReasonType;
+
+    interface IUserNaturalCapacity {
+      /**
+       * Real customer
+       */
+      Normal: "NORMAL";
+      /**
+       * User used only for declaration purpose
+       */
+      Declarative: "DECLARATIVE";
+    }
+    const UserNaturalCapacity: IUserNaturalCapacity;
+
+    class DeclaredUbo extends Model<UboDeclaration.UboDeclarationData> {
+      constructor(data: Partial<UboDeclaration.UboDeclarationData>);
+    }
+
     namespace EntityBase {
       interface EntityBaseData {
         Id: string;
@@ -355,6 +513,15 @@ declare namespace MangoPay {
       parse(): void;
       toJSON(): any;
     }
+
+    class Money extends EntityBase<MoneyData> {
+      constructor(data: MoneyData);
+    }
+
+    class Billing extends EntityBase<BillingData> {
+      constructor(data: BillingData);
+    }
+
     namespace Address {
       interface AddressData {
         AddressLine1: string;
@@ -612,17 +779,17 @@ declare namespace MangoPay {
         /**
          * Information about the funds that are being debited
          */
-        DebitedFunds: Money;
+        DebitedFunds: MoneyData;
 
         /**
          * Details about the funds that are being credited (DebitedFunds – Fees = CreditedFunds)
          */
-        CreditedFunds: Money;
+        CreditedFunds: MoneyData;
 
         /**
          * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
          */
-        Fees: Money;
+        Fees: MoneyData;
 
         /**
          * The ID of the wallet that was debited
@@ -693,7 +860,7 @@ declare namespace MangoPay {
         /**
          * The current balance of the wallet
          */
-        Balance: Money;
+        Balance: MoneyData;
 
         /**
          * The type of funds in the wallet
@@ -835,12 +1002,12 @@ declare namespace MangoPay {
         /**
          * The amount of money that has been credited to this user
          */
-        CreditedEMoney: Money;
+        CreditedEMoney: MoneyData;
 
         /**
          * The amount of money that has been debited from this user
          */
-        DebitedEMoney: Money;
+        DebitedEMoney: MoneyData;
       }
     }
 
@@ -1061,10 +1228,6 @@ declare namespace MangoPay {
     interface Card extends Card.CardData {}
 
     namespace CardPreAuthorization {
-      interface Billing {
-        Address: Address | Address.AddressData | string;
-      }
-
       interface CardPreAuthorizationData extends EntityBase.EntityBaseData {
         /**
          * A user's ID
@@ -1074,7 +1237,7 @@ declare namespace MangoPay {
         /**
          * Information about the funds that are being debited
          */
-        DebitedFunds: Money;
+        DebitedFunds: MoneyData;
 
         /**
          * Status of the PreAuthorization
@@ -1141,12 +1304,12 @@ declare namespace MangoPay {
         /**
          * Contains every useful informations related to the user billing
          */
-        Billing: Billing;
+        Billing: BillingData;
 
         /**
          * Contains useful informations related to security and fraud
          */
-        SecurityInfo: SecurityInfo;
+        SecurityInfo: SecurityInfoData;
       }
 
       type CreateCardPreAuthorization = Partial<
@@ -1192,6 +1355,7 @@ declare namespace MangoPay {
       type IncomeRange = 1 | 2 | 3 | 4 | 5 | 6;
       type PersonType = "NATURAL" | "LEGAL";
       type KYCLevel = "LIGHT" | "REGULAR";
+      type LegalPersonType = "BUSINESS" | "ORGANIZATION" | "SOLETRADER";
       type StaticKeys =
         | "KYCLevel"
         | "PersonType"
@@ -1231,7 +1395,7 @@ declare namespace MangoPay {
         /**
          * Type for legal user.
          */
-        LegalPersonType: "BUSINESS" | "ORGANIZATION" | "SOLETRADER";
+        LegalPersonType: LegalPersonType;
 
         /**
          * The address of the company’s headquarters
@@ -1435,6 +1599,501 @@ declare namespace MangoPay {
       setPersonType(type: User.PersonType): void;
     }
     interface User extends User.UserData {}
+
+    namespace PayIn {
+      type PayInPaymentType = ValueOf<IPayInPaymentType>;
+      type PayInExecutionType =
+        | ValueOf<IPayInExecutionType>
+        | "EXTERNAL_INSTRUCTION";
+
+      interface TemplateURLOptions {
+        Payline: string;
+      }
+
+      interface BasePayInData extends EntityBase.EntityBaseData {
+        /**
+         * Information about the funds that are being debited
+         */
+        DebitedFunds: MoneyData;
+
+        /**
+         * Details about the funds that are being credited (DebitedFunds – Fees = CreditedFunds)
+         */
+        CreditedFunds: MoneyData;
+
+        /**
+         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
+         */
+        Fees: MoneyData;
+
+        /**
+         * The ID of the wallet that was debited
+         */
+        DebitedWalletId: string;
+
+        /**
+         * The ID of the wallet where money will be credited
+         */
+        CreditedWalletId: string;
+
+        /**
+         * A user's ID
+         */
+        AuthorId: string;
+
+        /**
+         * The user ID who is credited (defaults to the owner of the wallet)
+         */
+        CreditedUserId: string;
+
+        /**
+         * The nature of the transaction
+         */
+        Nature: Transaction.TransactionNature;
+
+        /**
+         * The status of the transaction
+         */
+        Status: Transaction.TransactionStatus;
+
+        /**
+         * When the transaction happened
+         */
+        ExecutionDate: Timestamp;
+
+        /**
+         * The result code
+         */
+        ResultCode: string;
+
+        /**
+         * A verbal explanation of the ResultCode
+         */
+        ResultMessage: string;
+
+        /**
+         * The type of the transaction
+         */
+        Type: Transaction.TransactionType;
+
+        /**
+         * The type of payin
+         */
+        PaymentType: PayInPaymentType;
+
+        /**
+         * The type of execution for the payin
+         */
+        ExecutionType: PayInExecutionType;
+      }
+
+      interface CardWebPayInData extends BasePayInData {
+        ExecutionType: "WEB";
+        PaymentType: "CARD";
+        /**
+         * The URL to redirect to after payment (whether successful or not)
+         */
+        ReturnURL: string;
+
+        /**
+         * The type of card
+         */
+        CardType: Card.CardType;
+
+        /**
+         * The SecureMode corresponds to '3D secure' for CB Visa and MasterCard. This field lets you activate it manually. The field lets you activate it
+         * automatically with "DEFAULT" (Secured Mode will be activated from €50 or when MANGOPAY detects there is a higher risk ), "FORCE" (if you wish to specifically force the secured mode).
+         */
+        SecureMode: SecureMode;
+
+        /**
+         * The language to use for the payment page - needs to be the ISO code of the language
+         */
+        Culture: CountryISO;
+
+        /**
+         * The URL to use for the payment page template
+         */
+        TemplateURL: string;
+
+        /**
+         * A custom description to appear on the user's bank statement. It can be up to 10 characters long, and can only include alphanumeric characters or spaces.
+         * See here for important info. Note that each bank handles this information differently, some show less or no information.
+         */
+        StatementDescriptor: string;
+
+        /**
+         * The URL to redirect to user to for them to proceed with the payment
+         */
+        RedirectURL: string;
+      }
+
+      interface CreateCardWebPayIn {
+        ExecutionType: "WEB";
+        PaymentType: "CARD";
+        /**
+         * A user's ID
+         */
+        AuthorId: string;
+
+        /**
+         * The user ID who is credited (defaults to the owner of the wallet)
+         */
+        CreditedUserId?: string;
+
+        /**
+         * Information about the funds that are being debited
+         */
+        DebitedFunds: MoneyData;
+
+        /**
+         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
+         */
+        Fees: MoneyData;
+
+        /**
+         * The URL to redirect to after payment (whether successful or not)
+         */
+        ReturnURL: string;
+
+        /**
+         * The ID of the wallet where money will be credited
+         */
+        CreditedWalletId: string;
+
+        /**
+         * The type of card
+         */
+        CardType: Card.CardType;
+
+        /**
+         * The SecureMode corresponds to '3D secure' for CB Visa and MasterCard. This field lets you activate it manually.
+         * The field lets you activate it automatically with "DEFAULT" (Secured Mode will be activated from €50 or when MANGOPAY detects
+         * there is a higher risk ), "FORCE" (if you wish to specifically force the secured mode).
+         */
+        SecureMode?: SecureMode;
+
+        /**
+         * The language to use for the payment page - needs to be the ISO code of the language
+         */
+        Culture: CountryISO;
+
+        /**
+         * A URL to an SSL page to allow you to customise the payment page. Must be in the format: array("PAYLINE"=>"https://...") and meet all the
+         * specifications listed here. Note that only a template for Payline is currently available
+         */
+        TemplateURLOptions?: TemplateURLOptions;
+
+        /**
+         * A custom description to appear on the user's bank statement. It can be up to 10 characters long, and
+         * can only include alphanumeric characters or spaces. See here for important info. Note that each bank handles this information differently, some show less or no information.
+         */
+        StatementDescriptor?: string;
+      }
+
+      interface CardDirectPayInData extends BasePayInData {
+        ExecutionType: "DIRECT";
+        PaymentType: "CARD";
+        /**
+         * This is the URL where users are automatically redirected after 3D secure validation (if activated)
+         */
+        SecureModeReturnURL: string;
+
+        /**
+         * The ID of a card
+         */
+        CardId: string;
+
+        /**
+         * The SecureMode corresponds to '3D secure' for CB Visa and MasterCard. This field lets you activate it manually. The field lets you activate it
+         * automatically with "DEFAULT" (Secured Mode will be activated from €50 or when MANGOPAY detects there is a higher risk ), "FORCE" (if you wish to specifically force the secured mode).
+         */
+        SecureMode: SecureMode;
+
+        /**
+         * A custom description to appear on the user's bank statement. It can be up to 10 characters long, and can only include alphanumeric
+         * characters or spaces. See here for important info. Note that each bank handles this information differently, some show less or no information.
+         */
+        StatementDescriptor: string;
+
+        /**
+         * Contains every useful informations related to the user billing
+         */
+        Billing: BillingData;
+
+        /**
+         * Contains useful informations related to security and fraud
+         */
+        SecurityInfo: SecurityInfoData;
+
+        /**
+         * The value is 'true' if the SecureMode was used
+         */
+        SecureModeNeeded: boolean;
+
+        /**
+         * This is the URL where to redirect users to proceed to 3D secure validation
+         */
+        SecureModeRedirectUrl: string;
+      }
+
+      interface CreateCardDirectPayIn {
+        ExecutionType: "DIRECT";
+        PaymentType: "CARD";
+
+        /**
+         * A user's ID
+         */
+        AuthorId: string;
+
+        /**
+         * The user ID who is credited (defaults to the owner of the wallet)
+         */
+        CreditedUserId?: string;
+
+        /**
+         * The ID of the wallet where money will be credited
+         */
+        CreditedWalletId: string;
+
+        /**
+         * Information about the funds that are being debited
+         */
+        DebitedFunds: MoneyData;
+
+        /**
+         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
+         */
+        Fees: MoneyData;
+
+        /**
+         * This is the URL where users are automatically redirected after 3D secure validation (if activated)
+         */
+        SecureModeReturnURL: string;
+
+        /**
+         * The ID of a card
+         */
+        CardId: string;
+
+        /**
+         * The SecureMode corresponds to '3D secure' for CB Visa and MasterCard. This field lets you activate it manually. The field lets you activate it automatically
+         *  with "DEFAULT" (Secured Mode will be activated from €50 or when MANGOPAY detects there is a higher risk ), "FORCE" (if you wish to specifically force the secured mode).
+         */
+        SecureMode?: SecureMode;
+
+        /**
+         * Contains every useful informations related to the user billing
+         */
+        Billing?: BillingData;
+
+        /**
+         * A custom description to appear on the user's bank statement. It can be up to 10 characters long, and can only include alphanumeric characters or spaces.
+         * See here for important info. Note that each bank handles this information differently, some show less or no information.
+         */
+        StatementDescriptor?: string;
+      }
+
+      interface CardPreAuthorizedPayInData extends BasePayInData {
+        PreauthorizationId: string;
+        ExecutionType: "DIRECT";
+        PaymentType: "PREAUTHORIZED";
+      }
+
+      interface CreateCardPreAuthorizedPayIn {
+        ExecutionType: "DIRECT";
+        PaymentType: "PREAUTHORIZED";
+        /**
+         * Custom data that you can add to this item
+         */
+        Tag?: string;
+        /**
+         * A user's ID
+         */
+        AuthorId: string;
+        /**
+         * The user ID who is credited (defaults to the owner of the wallet)
+         */
+        CreditedUserId?: string;
+        /**
+         * The ID of the wallet where money will be credited
+         */
+        CreditedWalletId: string;
+        /**
+         * Information about the funds that are being debited
+         */
+        DebitedFunds: MoneyData;
+        /**
+         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
+         */
+        Fees: MoneyData;
+        /**
+         * The ID of the Preauthorization object
+         */
+        PreauthorizationId: string;
+      }
+
+      type PayInData =
+        | CardDirectPayInData
+        | CardPreAuthorizedPayInData
+        | CardWebPayInData;
+    }
+
+    class PayIn extends EntityBase<PayIn.BasePayInData> {
+      constructor(data: any);
+    }
+
+    interface PayIn extends PayIn.BasePayInData {}
+
+    class PayInPaymentDetails extends EntityBase<any> {
+      constructor(data: any);
+    }
+    class PayInExecutionDetails extends EntityBase<any> {
+      constructor(data: any);
+    }
+    class PayInExecutionDetailsDirect extends PayInExecutionDetails<any> {
+      constructor(data: any);
+    }
+
+    class PayInExecutionDetailsWeb extends PayInExecutionDetails<any> {
+      constructor(data: any);
+    }
+
+    class PayInPaymentDetailsBankWire extends PayInPaymentDetails<any> {
+      constructor(data: any);
+    }
+
+    class PayInPaymentDetailsBankingAlias extends PayInPaymentDetails<any> {
+      constructor(data: any);
+    }
+
+    class PayInPaymentDetailsCard extends PayInPaymentDetails<any> {
+      constructor(data: any);
+    }
+
+    class PayInPaymentDetailsCardDirect extends PayInPaymentDetails<any> {
+      constructor(data: any);
+    }
+
+    class PayInPaymentDetailsCardWeb extends PayInPaymentDetails<any> {
+      constructor(data: any);
+    }
+
+    class PayInPaymentDetailsDirectDebitDirect extends PayInPaymentDetails<
+      any
+    > {
+      constructor(data: any);
+    }
+    class PayInPaymentDetailsDirectDebitWeb extends PayInPaymentDetails<any> {
+      constructor(data: any);
+    }
+    class PayInPaymentDetailsPayPal extends PayInPaymentDetails<any> {
+      constructor(data: any);
+    }
+    class PayInPaymentDetailsPreAuthorized extends PayInPaymentDetails<any> {
+      constructor(data: any);
+    }
+
+    class PayInTemplateURLOptions extends EntityBase<any> {
+      constructor(data: any);
+    }
+
+    namespace Refund {
+      type RefundReasonType =
+        | "INITIALIZED_BY_CLIENT"
+        | "BANKACCOUNT_INCORRECT"
+        | "OWNER_DO_NOT_MATCH_BANKACCOUNT"
+        | "BANKACCOUNT_HAS_BEEN_CLOSED"
+        | "WITHDRAWAL_IMPOSSIBLE_ON_SAVINGS_ACCOUNTS"
+        | "OTHER";
+      interface RefundReason {
+        RefundReasonType: RefundReasonType;
+      }
+      interface RefundData {
+        /**
+         * Information about the funds that are being debited
+         */
+        DebitedFunds: MoneyData;
+        /**
+         * Details about the funds that are being credited (DebitedFunds – Fees = CreditedFunds)
+         */
+        CreditedFunds: MoneyData;
+        /**
+         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
+         */
+        Fees: MoneyData;
+        /**
+         * The ID of the wallet that was debited
+         */
+        DebitedWalletId: string;
+        /**
+         * The ID of the wallet where money will be credited
+         */
+        CreditedWalletId: string;
+        /**
+         * A user's ID
+         */
+        AuthorId: string;
+        /**
+         * The user ID who is credited (defaults to the owner of the wallet)
+         */
+        CreditedUserId: string;
+        /**
+         * The nature of the transaction
+         */
+        Nature: Transacion.TransactionNature;
+        /**
+         * The status of the transaction
+         */
+        Status: Transaction.TransactionStatus;
+        /**
+         * When the transaction happened
+         */
+        ExecutionDate: Timestamp;
+        /**
+         * The result code
+         */
+        ResultCode: string;
+        /**
+         * A verbal explanation of the ResultCode
+         */
+        ResultMessage: string;
+        /**
+         * The type of the transaction
+         */
+        Type: Transaction.TransactionType;
+        /**
+         * The initial transaction ID
+         */
+        InitialTransactionId: string;
+        /**
+         * The initial transaction type
+         */
+        InitialTransactionType: Transaction.TransactionType;
+        /**
+         * Contains info about the reason for refund
+         */
+        RefundReason: RefundReason;
+      }
+      interface CreatePayInRefund {
+        AuthorId: string;
+        Tag?: string;
+        DebitedFunds?: MoneyData;
+        Fees?: MoneyData;
+      }
+      interface CreateTransferRefund {
+        AuthorId: string;
+        Tag?: string;
+      }
+    }
+
+    class Refund extends EntityBase<Refund.RefundData> {
+      constructor(data: Refund.CreatePayInRefund | Refund.CreateTransferRefund);
+    }
+
+    class RefundReasonDetails extends EntityBase<any> {
+      constructor(data: any);
+    }
   }
 
   class Users {
@@ -1924,5 +2583,57 @@ declare namespace MangoPay {
       models.CardPreAuthorization.UpdateCardPreAuthorization,
       models.CardPreAuthorization.CardPreAuthorizationData
     >;
+  }
+
+  class PayIns {
+    /**
+     * Create new pay-in
+     * @param payIn
+     * @param options
+     */
+    create: MethodOverload<
+      models.PayIn.CreateCardDirectPayIn,
+      models.PayIn.CardDirectPayInData
+    > &
+      MethodOverload<
+        models.PayIn.CreateCardPreAuthorizedPayIn,
+        models.PayIn.CardPreAuthorizedPayInData
+      > &
+      MethodOverload<
+        models.PayIn.CreateCardWebPayIn,
+        models.PayIn.CardWebPayInData
+      >;
+    /**
+     * Get pay-in
+     * @param payInId
+     * @param options
+     */
+    get: MethodOverload<string, models.PayIn.PayInData>;
+    /**
+     * Create refund for pay-in object
+     * @param payInId
+     * @param refundData
+     * @param options
+     */
+    createRefund: TwoArgsMethodOverload<
+      string,
+      models.Refund.CreatePayInRefund,
+      models.Refund.RefundData
+    >;
+    /**
+     * Gets list of Refunds for a PayIn
+     * @param payInId
+     * @param options
+     */
+    getRefunds: MethodOverload<string, models.Refund.RefundData[]>;
+  }
+
+  class Refunds {
+    /**
+     * Get events
+     * @param refundId
+     * @param options
+     */
+    get: MethodOverload<string, models.Refund.RefundData>;
   }
 }
