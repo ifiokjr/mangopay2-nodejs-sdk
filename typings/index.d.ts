@@ -34,6 +34,7 @@ declare class MangoPay {
   PayOuts: MangoPay.PayOuts;
   Refunds: MangoPay.Refunds;
   Clients: MangoPay.Clients;
+  models: typeof MangoPay.Models;
 
   Log(...args: any[]): void;
   authorize(callback: (data: MangoPay.AuthorizationData) => void): void;
@@ -331,7 +332,7 @@ declare namespace MangoPay {
 
   interface Model<T extends {}> extends ModelMethods<T> {}
 
-  namespace models {
+  namespace Models {
     interface IPayInExecutionType {
       Direct: "DIRECT";
       Web: "WEB";
@@ -483,7 +484,7 @@ declare namespace MangoPay {
     }
     const UserNaturalCapacity: IUserNaturalCapacity;
 
-    class DeclaredUbo extends Model<UboDeclaration.UboDeclarationData> {
+    class DeclaredUbo extends Models<UboDeclaration.UboDeclarationData> {
       constructor(data: Partial<UboDeclaration.UboDeclarationData>);
     }
 
@@ -494,7 +495,7 @@ declare namespace MangoPay {
         CreationDate: number;
       }
     }
-    class EntityBase<T extends EntityBase.EntityBaseData> extends Model<T> {
+    class EntityBase<T extends EntityBase.EntityBaseData> extends Models<T> {
       initialize(): void;
 
       /**
@@ -2427,12 +2428,12 @@ declare namespace MangoPay {
      * @param user
      */
     create: MethodOverload<
-      models.UserLegal | models.User.CreateUserLegalData,
-      models.User.UserLegalData
+      Models.UserLegal | Models.User.CreateUserLegalData,
+      Models.User.UserLegalData
     > &
       MethodOverload<
-        models.UserNatural | models.User.CreateUserNaturalData,
-        models.User.UserNaturalData
+        Models.UserNatural | Models.User.CreateUserNaturalData,
+        Models.User.UserNaturalData
       >;
 
     /**
@@ -2441,12 +2442,12 @@ declare namespace MangoPay {
      * @param options
      */
     update: MethodOverload<
-      models.UserLegal | models.User.UpdateUserLegalData,
-      models.User.UserLegalData
+      Models.UserLegal | Models.User.UpdateUserLegalData,
+      Models.User.UserLegalData
     > &
       MethodOverload<
-        models.UserNatural | models.User.UpdateUserNaturalData,
-        models.User.UserNaturalData
+        Models.UserNatural | Models.User.UpdateUserNaturalData,
+        Models.User.UserNaturalData
       >;
 
     /**
@@ -2456,7 +2457,7 @@ declare namespace MangoPay {
      */
     get: MethodOverload<
       string,
-      models.User.UserLegalData | models.User.UserNaturalData
+      Models.User.UserLegalData | Models.User.UserNaturalData
     >;
 
     /**
@@ -2464,20 +2465,20 @@ declare namespace MangoPay {
      * @param userId
      * @param options
      */
-    getNatural: MethodOverload<string, models.User.UserNaturalData>;
+    getNatural: MethodOverload<string, Models.User.UserNaturalData>;
 
     /**
      * Get legal user by ID
      * @param userId
      * @param options
      */
-    getLegal: MethodOverload<string, models.User.UserLegalData>;
+    getLegal: MethodOverload<string, Models.User.UserLegalData>;
 
     /**
      * Get all users
      */
     getAll: NoArgMethodOverload<
-      Array<models.User.UserLegalData | models.User.UserNaturalData>
+      Array<Models.User.UserLegalData | Models.User.UserNaturalData>
     >;
 
     /**
@@ -2488,28 +2489,28 @@ declare namespace MangoPay {
      */
     createBankAccount: TwoArgsMethodOverload<
       string,
-      models.BankAccount.USDetails,
-      models.BankAccount.USData
+      Models.BankAccount.USDetails,
+      Models.BankAccount.USData
     > &
       TwoArgsMethodOverload<
         string,
-        models.BankAccount.OtherDetails,
-        models.BankAccount.OtherData
+        Models.BankAccount.OtherDetails,
+        Models.BankAccount.OtherData
       > &
       TwoArgsMethodOverload<
         string,
-        models.BankAccount.IBANDetails,
-        models.BankAccount.IBANData
+        Models.BankAccount.IBANDetails,
+        Models.BankAccount.IBANData
       > &
       TwoArgsMethodOverload<
         string,
-        models.BankAccount.GBDetails,
-        models.BankAccount.GBData
+        Models.BankAccount.GBDetails,
+        Models.BankAccount.GBData
       > &
       TwoArgsMethodOverload<
         string,
-        models.BankAccount.CADetails,
-        models.BankAccount.CAData
+        Models.BankAccount.CADetails,
+        Models.BankAccount.CAData
       >;
 
     /**
@@ -2527,7 +2528,7 @@ declare namespace MangoPay {
      * @param userId
      * @param options
      */
-    getBankAccounts: MethodOverload<string, models.BankAccount.Data[]>;
+    getBankAccounts: MethodOverload<string, Models.BankAccount.Data[]>;
 
     /**
      * Get all bank accounts for user
@@ -2538,13 +2539,13 @@ declare namespace MangoPay {
     getBankAccount: TwoArgsMethodOverload<
       string,
       string,
-      models.BankAccount.Data
+      Models.BankAccount.Data
     >;
 
     /**
      * Get all wallets accounts for user
      */
-    getWallets: MethodOverload<string, models.Wallet.WalletData[]>;
+    getWallets: MethodOverload<string, Models.Wallet.WalletData[]>;
 
     /**
      * Get all transactions for user
@@ -2553,7 +2554,7 @@ declare namespace MangoPay {
      */
     getTransactions: MethodOverload<
       string,
-      models.Transaction.TransactionData[]
+      Models.Transaction.TransactionData[]
     >;
 
     /**
@@ -2561,7 +2562,7 @@ declare namespace MangoPay {
      * @param userId
      * @param options
      */
-    getCards: MethodOverload<string, models.Card.CardData[]>;
+    getCards: MethodOverload<string, Models.Card.CardData[]>;
 
     /**
      * Create new KYC document
@@ -2571,8 +2572,8 @@ declare namespace MangoPay {
      */
     createKycDocument: TwoArgsMethodOverload<
       string,
-      models.KycDocument.CreateKycDocument,
-      models.KycDocument.KycDocumentData
+      Models.KycDocument.CreateKycDocument,
+      Models.KycDocument.KycDocumentData
     >;
 
     /**
@@ -2582,7 +2583,7 @@ declare namespace MangoPay {
      */
     getKycDocuments: MethodOverload<
       string,
-      models.KycDocument.KycDocumentData[]
+      Models.KycDocument.KycDocumentData[]
     >;
 
     /**
@@ -2594,7 +2595,7 @@ declare namespace MangoPay {
     getKycDocument: TwoArgsMethodOverload<
       string,
       string,
-      models.KycDocument.KycDocumentData
+      Models.KycDocument.KycDocumentData
     >;
 
     /**
@@ -2605,8 +2606,8 @@ declare namespace MangoPay {
      */
     updateKycDocument: TwoArgsMethodOverload<
       string,
-      models.KycDocument.SubmitKycDocument,
-      models.KycDocument.KycDocumentData
+      Models.KycDocument.SubmitKycDocument,
+      Models.KycDocument.KycDocumentData
     >;
 
     /**
@@ -2619,8 +2620,8 @@ declare namespace MangoPay {
     createKycPage: ThreeArgsMethodOverload<
       string,
       string,
-      models.KycDocument.CreateKycPage,
-      models.KycDocument.KycDocumentData
+      Models.KycDocument.CreateKycPage,
+      Models.KycDocument.KycDocumentData
     >;
 
     /**
@@ -2634,7 +2635,7 @@ declare namespace MangoPay {
       string,
       string,
       string,
-      models.KycDocument.KycDocumentData
+      Models.KycDocument.KycDocumentData
     >;
 
     /**
@@ -2642,7 +2643,7 @@ declare namespace MangoPay {
      * @param userId
      * @param options
      */
-    getEMoney: MethodOverload<string, models.EMoney.EMoneyData>;
+    getEMoney: MethodOverload<string, Models.EMoney.EMoneyData>;
 
     /**
      * Create an UboDeclaration for the user
@@ -2652,8 +2653,8 @@ declare namespace MangoPay {
      */
     createUboDeclaration: TwoArgsMethodOverload<
       string,
-      models.UboDeclaration.CreateUboDeclaration,
-      models.UboDeclaration.UboDeclarationData
+      Models.UboDeclaration.CreateUboDeclaration,
+      Models.UboDeclaration.UboDeclarationData
     >;
 
     /**
@@ -2663,7 +2664,7 @@ declare namespace MangoPay {
      */
     getPreAuthorizations: MethodOverload<
       string,
-      models.CardPreAuthorization.CardPreAuthorizationData[]
+      Models.CardPreAuthorization.CardPreAuthorizationData[]
     >;
   }
 
@@ -2682,14 +2683,14 @@ declare namespace MangoPay {
      * Get all KycDocuments
      * @param options
      */
-    getAll: NoArgMethodOverload<models.KycDocument.KycDocumentData[]>;
+    getAll: NoArgMethodOverload<Models.KycDocument.KycDocumentData[]>;
 
     /**
      * Get KycDocument
      * @param kycDocumentId
      * @param options
      */
-    get: MethodOverload<string, models.KycDocument.KycDocumentData>;
+    get: MethodOverload<string, Models.KycDocument.KycDocumentData>;
 
     /**
      * Creates temporary URLs where each page of a KYC document can be viewed.
@@ -2719,7 +2720,7 @@ declare namespace MangoPay {
      * @param id
      * @param options
      */
-    get: MethodOverload<string, models.UboDeclaration.UboDeclarationData>;
+    get: MethodOverload<string, Models.UboDeclaration.UboDeclarationData>;
 
     /**
      * Updates a UBO declaration entity.
@@ -2727,8 +2728,8 @@ declare namespace MangoPay {
      * @param options
      */
     update: MethodOverload<
-      models.UboDeclaration.UpdateUboDeclaration,
-      models.UboDeclaration.UboDeclarationData
+      Models.UboDeclaration.UpdateUboDeclaration,
+      Models.UboDeclaration.UboDeclarationData
     >;
   }
 
@@ -2740,7 +2741,7 @@ declare namespace MangoPay {
      */
     getTransactions: MethodOverload<
       string,
-      models.Transaction.TransactionData[]
+      Models.Transaction.TransactionData[]
     >;
   }
 
@@ -2751,8 +2752,8 @@ declare namespace MangoPay {
      * @param options
      */
     create: MethodOverload<
-      models.Wallet.CreateWallet | models.Wallet,
-      models.Wallet.WalletData
+      Models.Wallet.CreateWallet | Models.Wallet,
+      Models.Wallet.WalletData
     >;
 
     /**
@@ -2761,15 +2762,15 @@ declare namespace MangoPay {
      * @param options
      */
     update: MethodOverload<
-      models.Wallet.UpdateWallet | models.Wallet,
-      models.Wallet.WalletData
+      Models.Wallet.UpdateWallet | Models.Wallet,
+      Models.Wallet.WalletData
     >;
 
     /**
      * Get a specific wallet
      * @param walletId
      */
-    get: MethodOverload<string, models.Wallet.WalletData>;
+    get: MethodOverload<string, Models.Wallet.WalletData>;
 
     /**
      * Get transactions for the wallet
@@ -2778,7 +2779,7 @@ declare namespace MangoPay {
      */
     getTransactions: MethodOverload<
       string,
-      models.Transaction.TransactionData[]
+      Models.Transaction.TransactionData[]
     >;
   }
 
@@ -2788,7 +2789,7 @@ declare namespace MangoPay {
      * @param cardId
      * @param ptions
      */
-    get: MethodOverload<string, models.Card.CardData>;
+    get: MethodOverload<string, Models.Card.CardData>;
 
     /**
      * Gets a list of cards having the same fingerprint.
@@ -2796,14 +2797,14 @@ declare namespace MangoPay {
      *
      * @param fingerprint The fingerprint hash
      */
-    getByFingerprint: MethodOverload<string, models.Card.CardData[]>;
+    getByFingerprint: MethodOverload<string, Models.Card.CardData[]>;
 
     /**
      * Update card (currently only supports deactivation)
      * @param card
      * @param options
      */
-    update: MethodOverload<models.Card.UpdateCard, models.Card.CardData>;
+    update: MethodOverload<Models.Card.UpdateCard, Models.Card.CardData>;
 
     /**
      * Get list of Transactions of a Card
@@ -2812,7 +2813,7 @@ declare namespace MangoPay {
      */
     getTransactions: MethodOverload<
       string,
-      models.Transaction.TransactionData[]
+      Models.Transaction.TransactionData[]
     >;
 
     /**
@@ -2822,7 +2823,7 @@ declare namespace MangoPay {
      */
     getPreAuthorizations: MethodOverload<
       string,
-      models.CardPreAuthorization.CardPreAuthorizationData[]
+      Models.CardPreAuthorization.CardPreAuthorizationData[]
     >;
   }
 
@@ -2845,8 +2846,8 @@ declare namespace MangoPay {
      * @param options
      */
     create: MethodOverload<
-      models.CardRegistration.CreateCardRegistration,
-      models.CardRegistration.CardRegistrationData
+      Models.CardRegistration.CreateCardRegistration,
+      Models.CardRegistration.CardRegistrationData
     >;
 
     /**
@@ -2854,15 +2855,15 @@ declare namespace MangoPay {
      * @param cardRegistrationId
      * @param options
      */
-    get: MethodOverload<string, models.CardRegistration.CardRegistrationData>;
+    get: MethodOverload<string, Models.CardRegistration.CardRegistrationData>;
 
     /**
      * Update card registration
      * @param  cardRegistration
      */
     update: MethodOverload<
-      models.CardRegistration.UpdateCardRegistration,
-      models.CardRegistration.CardRegistrationData
+      Models.CardRegistration.UpdateCardRegistration,
+      Models.CardRegistration.CardRegistrationData
     >;
   }
 
@@ -2886,8 +2887,8 @@ declare namespace MangoPay {
      * @param options
      */
     create: MethodOverload<
-      models.CardPreAuthorization.CreateCardPreAuthorization,
-      models.CardPreAuthorization.CardPreAuthorizationData
+      Models.CardPreAuthorization.CreateCardPreAuthorization,
+      Models.CardPreAuthorization.CardPreAuthorizationData
     >;
 
     /**
@@ -2897,7 +2898,7 @@ declare namespace MangoPay {
      */
     get: MethodOverload<
       string,
-      models.CardPreAuthorization.CardPreAuthorizationData
+      Models.CardPreAuthorization.CardPreAuthorizationData
     >;
 
     /**
@@ -2905,8 +2906,8 @@ declare namespace MangoPay {
      * @param  cardPreAuthorization
      */
     update: MethodOverload<
-      models.CardPreAuthorization.UpdateCardPreAuthorization,
-      models.CardPreAuthorization.CardPreAuthorizationData
+      Models.CardPreAuthorization.UpdateCardPreAuthorization,
+      Models.CardPreAuthorization.CardPreAuthorizationData
     >;
   }
 
@@ -2917,23 +2918,23 @@ declare namespace MangoPay {
      * @param options
      */
     create: MethodOverload<
-      models.PayIn.CreateCardDirectPayIn,
-      models.PayIn.CardDirectPayInData
+      Models.PayIn.CreateCardDirectPayIn,
+      Models.PayIn.CardDirectPayInData
     > &
       MethodOverload<
-        models.PayIn.CreateCardPreAuthorizedPayIn,
-        models.PayIn.CardPreAuthorizedPayInData
+        Models.PayIn.CreateCardPreAuthorizedPayIn,
+        Models.PayIn.CardPreAuthorizedPayInData
       > &
       MethodOverload<
-        models.PayIn.CreateCardWebPayIn,
-        models.PayIn.CardWebPayInData
+        Models.PayIn.CreateCardWebPayIn,
+        Models.PayIn.CardWebPayInData
       >;
     /**
      * Get pay-in
      * @param payInId
      * @param options
      */
-    get: MethodOverload<string, models.PayIn.PayInData>;
+    get: MethodOverload<string, Models.PayIn.PayInData>;
     /**
      * Create refund for pay-in object
      * @param payInId
@@ -2942,15 +2943,15 @@ declare namespace MangoPay {
      */
     createRefund: TwoArgsMethodOverload<
       string,
-      models.Refund.CreatePayInRefund,
-      models.Refund.RefundData
+      Models.Refund.CreatePayInRefund,
+      Models.Refund.RefundData
     >;
     /**
      * Gets list of Refunds for a PayIn
      * @param payInId
      * @param options
      */
-    getRefunds: MethodOverload<string, models.Refund.RefundData[]>;
+    getRefunds: MethodOverload<string, Models.Refund.RefundData[]>;
   }
 
   class Refunds {
@@ -2959,7 +2960,7 @@ declare namespace MangoPay {
      * @param refundId
      * @param options
      */
-    get: MethodOverload<string, models.Refund.RefundData>;
+    get: MethodOverload<string, Models.Refund.RefundData>;
   }
 
   class Clients {
@@ -2967,33 +2968,33 @@ declare namespace MangoPay {
      * Get the client
      * @return {Object}        Request promise
      */
-    get: NoArgMethodOverload<models.Client.ClientData>;
+    get: NoArgMethodOverload<Models.Client.ClientData>;
     /**
      * Update the client
      * @param client
      * @param options
      */
     update: MethodOverload<
-      models.Client.UpdateClient,
-      models.Client.ClientData
+      Models.Client.UpdateClient,
+      Models.Client.ClientData
     >;
     /**
      * Upload client logo from base64 image string
      * @param base64Logo
      * @param options
      */
-    uploadLogo: MethodOverload<string, models.Client.ClientData>;
+    uploadLogo: MethodOverload<string, Models.Client.ClientData>;
     /**
      * Upload client logo from file path
      * @param {string}  filePath                    File path
      * @param {Object} options                  Request options
      */
-    uploadLogoFromFile: MethodOverload<string, models.Client.ClientData>;
+    uploadLogoFromFile: MethodOverload<string, Models.Client.ClientData>;
     /**
      * Get all client wallets
      * @param {Object} options                  Request options
      */
-    getClientWallets: NoArgMethodOverload<models.Wallet.ClientWalletData[]>;
+    getClientWallets: NoArgMethodOverload<Models.Wallet.ClientWalletData[]>;
     /**
      * Get a client wallet
      * @param fundsType    Wallet's funds type
@@ -3001,9 +3002,9 @@ declare namespace MangoPay {
      * @param options      Request options
      */
     getClientWallet: TwoArgsMethodOverload<
-      models.Wallet.ClientFundsType,
+      Models.Wallet.ClientFundsType,
       CurrencyISO,
-      models.Wallet.ClientWalletData
+      Models.Wallet.ClientWalletData
     >;
     /**
      * Get client wallets by the type of funds
@@ -3011,8 +3012,8 @@ declare namespace MangoPay {
      * @param options
      */
     getClientWalletsByFundsType: MethodOverload<
-      models.Wallet.ClientFundsType,
-      models.Wallet.ClientWalletData[]
+      Models.Wallet.ClientFundsType,
+      Models.Wallet.ClientWalletData[]
     >;
     /**
      * Get a client wallet's transactions
@@ -3021,9 +3022,9 @@ declare namespace MangoPay {
      * @param options
      */
     getClientWalletTransactions: TwoArgsMethodOverload<
-      models.Wallet.ClientFundsType,
+      Models.Wallet.ClientFundsType,
       CurrencyISO,
-      models.Transaction.TransactionData[]
+      Models.Transaction.TransactionData[]
     >;
   }
 
@@ -3034,21 +3035,21 @@ declare namespace MangoPay {
      * @param options
      */
     create: MethodOverload<
-      models.PayOut.CreatePayOut,
-      models.PayOut.PayOutData
+      Models.PayOut.CreatePayOut,
+      Models.PayOut.PayOutData
     >;
     /**
      * Get payout
      * @param payOutId
      * @param options
      */
-    get: MethodOverload<string, models.PayOut.PayOutData>;
+    get: MethodOverload<string, Models.PayOut.PayOutData>;
     /**
      * Gets list of Refunds of a PayOut
      * @param payOutId
      * @param options
      */
-    getRefunds: MethodOverload<string, models.Refund.RefundData[]>;
+    getRefunds: MethodOverload<string, Models.Refund.RefundData[]>;
   }
 
   class Transfers {
@@ -3058,15 +3059,15 @@ declare namespace MangoPay {
      * @param options
      */
     create: MethodOverload<
-      models.Transfer.CreateTransfer,
-      models.Transfer.TransferData
+      Models.Transfer.CreateTransfer,
+      Models.Transfer.TransferData
     >;
     /**
      * Get transfer
      * @param transferId
      * @param options
      */
-    get: MethodOverload<string, models.Transfer.TransferData>;
+    get: MethodOverload<string, Models.Transfer.TransferData>;
     /**
      * Create refund for transfer object
      * @param transferId
@@ -3075,14 +3076,14 @@ declare namespace MangoPay {
      */
     createRefund: TwoArgsMethodOverload<
       string,
-      models.Refund.CreateTransferRefund,
-      models.Refund.RefundData
+      Models.Refund.CreateTransferRefund,
+      Models.Refund.RefundData
     >;
     /**
      * Gets list of Refunds of a Transfer
      * @param transferId
      * @param options
      */
-    getRefunds: MethodOverload<string, models.Refund.RefundData[]>;
+    getRefunds: MethodOverload<string, Models.Refund.RefundData[]>;
   }
 }

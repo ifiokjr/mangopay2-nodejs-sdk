@@ -11,19 +11,31 @@ const validConfig: MangoPay.Config = {
   baseUrl: "https://api.mangopay.com"
 };
 
-// $ExpectType MangoPay
-const api = new MangoPay(validConfig);
+const T = new MangoPay.Models.Address({});
+
+const api = new MangoPay(validConfig); // $ExpectType MangoPay
+const payIn: MangoPay.Models.PayIn = new api.models.PayIn({}); // $ExpectType PayIn
+const address: MangoPay.Models.Address = new api.models.Address({}); // $ExpectType Address
+
+const addressData: MangoPay.Models.Address.AddressData = {
+  AddressLine1: "20 T Street",
+  AddressLine2: "",
+  City: "London",
+  Country: "UK",
+  PostalCode: "FR43 2WE",
+  Region: "London"
+};
 
 /* Users */
 
-const legalUser = new MangoPay.models.UserLegal({
+const legalUser = new api.models.UserLegal({
   Name: "MangoPay",
   Email: "info@mangopay.com",
   LegalPersonType: "BUSINESS",
   LegalRepresentativeFirstName: "Mango",
   LegalRepresentativeLastName: "Pay",
   LegalRepresentativeEmail: "mango@mangopay.com",
-  HeadquartersAddress: new MangoPay.models.Address({
+  HeadquartersAddress: new api.models.Address({
     AddressLine1: "4101 Reservoir Rd NW",
     AddressLine2: "",
     City: "Washington",
@@ -53,7 +65,7 @@ api.Users.create(legalUser, { headers: {} }).then(data => {
   const d = data; // $ExpectType UserLegalData
 });
 
-const naturalUser = new MangoPay.models.UserNatural({
+const naturalUser = new api.models.UserNatural({
   Email: "info@mangopay.com",
   Birthday: 1300186358,
   FirstName: "Sara",
@@ -183,6 +195,8 @@ api.Users.createKycPageFromFile(
   const d = data; // $ExpectType KycDocumentData
 });
 
+// MangoPay.
+
 api.Users.getEMoney("user-id").then(data => {
   const d = data; // $ExpectType EMoneyData
 });
@@ -240,7 +254,7 @@ api.Wallets.create({
   const d = data; // $ExpectType WalletData
 });
 
-const wallet = new MangoPay.models.Wallet({
+const wallet = new api.models.Wallet({
   Currency: "GB",
   Description: "A description",
   Owners: ["user-id"]
