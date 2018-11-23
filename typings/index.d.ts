@@ -30,7 +30,10 @@ declare class MangoPay {
   CardRegistrations: MangoPay.CardRegistrations;
   CardPreAuthorizations: MangoPay.CardPreAuthorizations;
   PayIns: MangoPay.PayIns;
+  Transfers: MangoPay.Transfers;
+  PayOuts: MangoPay.PayOuts;
   Refunds: MangoPay.Refunds;
+  Clients: MangoPay.Clients;
 
   Log(...args: any[]): void;
   authorize(callback: (data: MangoPay.AuthorizationData) => void): void;
@@ -531,11 +534,13 @@ declare namespace MangoPay {
         PostalCode: string;
         Country: string;
       }
+      type AddressType = string | AddressData;
     }
 
     class Address extends EntityBase<Address.AddressData> {
       constructor(data: Partial<Address.AddressData>);
     }
+    interface Address extends Address.AddressData {}
 
     namespace BankAccount {
       type BankAccountType = "IBAN" | "GB" | "US" | "CA" | "OTHER";
@@ -560,7 +565,7 @@ declare namespace MangoPay {
         /**
          * The address of the owner of the bank account
          */
-        OwnerAddress: string | Address.AddressData | Address;
+        OwnerAddress: Address.AddressType;
 
         /**
          * @deprecated
@@ -604,7 +609,7 @@ declare namespace MangoPay {
         /**
          * The address of the owner of the bank account
          */
-        OwnerAddress: string | Address.AddressData | Address;
+        OwnerAddress: Address.AddressType;
 
         /**
          * The name of the owner of the bank account
@@ -634,7 +639,7 @@ declare namespace MangoPay {
         /**
          * The address of the owner of the bank account
          */
-        OwnerAddress: string | Address.AddressData | Address;
+        OwnerAddress: Address.AddressType;
 
         /**
          * The name of the owner of the bank account
@@ -669,7 +674,7 @@ declare namespace MangoPay {
         /**
          * The address of the owner of the bank account
          */
-        OwnerAddress: string | Address.AddressData | Address;
+        OwnerAddress: Address.AddressType;
 
         /**
          * The name of the owner of the bank account
@@ -694,7 +699,7 @@ declare namespace MangoPay {
         /**
          * The address of the owner of the bank account
          */
-        OwnerAddress: string | Address.AddressData | Address;
+        OwnerAddress: Address.AddressType;
 
         /**
          * The name of the owner of the bank account
@@ -849,7 +854,8 @@ declare namespace MangoPay {
     interface Transaction extends Transaction.TransactionData {}
 
     namespace Wallet {
-      type FundsType = "DEFAULT" | "FEES" | "CREDIT";
+      type ClientFundsType = "FEES" | "CREDIT";
+      type FundsType = "DEFAULT" | ClientFundsType;
 
       interface WalletData extends EntityBase.EntityBaseData {
         /**
@@ -878,10 +884,17 @@ declare namespace MangoPay {
         Currency: CurrencyISO;
       }
 
+      interface ClientWalletData
+        extends Omit<WalletData, "Owners" | "Description"> {
+        FundsType: ClientFundsType;
+      }
+
       type CreateWallet = UpdateWallet &
         Pick<WalletData, "Owners" | "Currency" | "Description">;
       type UpdateWallet = Partial<Pick<WalletData, "Tag" | "Description">>;
     }
+
+    class ClientWallet extends EntityBase<Wallet.WalletData> {}
 
     class Wallet extends EntityBase<Wallet.WalletData> {
       constructor(data: Wallet.CreateWallet | Wallet.UpdateWallet);
@@ -1400,7 +1413,7 @@ declare namespace MangoPay {
         /**
          * The address of the company’s headquarters
          */
-        HeadquartersAddress: string | Address | Address.AddressData;
+        HeadquartersAddress: Address.AddressType;
 
         /**
          * The first name of the company’s Legal representative person
@@ -1415,7 +1428,7 @@ declare namespace MangoPay {
         /**
          * The address of the company’s Legal representative person
          */
-        LegalRepresentativeAddress: string | Address | Address.AddressData;
+        LegalRepresentativeAddress: Address.AddressType;
 
         /**
          * The email of the company’s Legal representative person - must be valid
@@ -2094,6 +2107,318 @@ declare namespace MangoPay {
     class RefundReasonDetails extends EntityBase<any> {
       constructor(data: any);
     }
+
+    namespace Client {
+      type BusinessType =
+        | "MARKETPLACE"
+        | "CROWDFUNDING"
+        | "FRANCHISE"
+        | "OTHER";
+      type Sector =
+        | "RENTALS"
+        | "STORES_FASHION_ACCESSORIES_OBJECTS"
+        | "BEAUTY_COSMETICS_HEALTH"
+        | "FOOD_WINE_RESTAURANTS"
+        | "HOSPITALITY_TRAVEL_CORIDING"
+        | "ART_MUSIC_ENTERTAINMENT"
+        | "FURNITURE_GARDEN"
+        | "SERVICES_JOBBING_EDUCATION"
+        | "SPORT_RECREATION_ACTIVITIES"
+        | "TICKETING";
+      type PlatformType = ValueOf<IPlatformType>;
+
+      interface PlatformCategorization {
+        Sector: Sector;
+        BusinessType: BusinessType;
+      }
+
+      interface ClientData {
+        /**
+         * The pretty name for the client
+         */
+        Name: string;
+        /**
+         * The registered name of your company
+         */
+        RegisteredName: string;
+        /**
+         * An ID for the client (i.e. url friendly, lowercase etc - sort of namespace identifier)
+         */
+        ClientId: string;
+        /**
+         * The primary branding colour to use for your merchant
+         */
+        PrimaryThemeColour: string;
+        /**
+         * The primary branding colour to use for buttons for your merchant
+         */
+        PrimaryButtonColour: string;
+        /**
+         * The URL of the logo of your client
+         */
+        Logo: string;
+        /**
+         * A list of email addresses to use when contacting you for technical issues/communications
+         */
+        TechEmails: string[];
+        /**
+         * A list of email addresses to use when contacting you for admin/commercial issues/communications
+         */
+        AdminEmails: string[];
+        /**
+         * A list of email addresses to use when contacting you for fraud/compliance issues/communications
+         */
+        FraudEmails: string[];
+        /**
+         * A list of email addresses to use when contacting you for billing issues/communications
+         */
+        BillingEmails: string[];
+        /**
+         * The Categorization of your platform, in terms of Business Type and Sector
+         */
+        PlatformCategorization: PlatformCategorization;
+        /**
+         * A description of what your platform does
+         */
+        PlatformDescription: string;
+        /**
+         * The URL for your website
+         */
+        PlatformURL: string;
+        /**
+         * The address of the company’s headquarters
+         */
+        HeadquartersAddress: Address.AddressType;
+        /**
+         * The tax (or VAT) number for your company
+         */
+        TaxNumber: string;
+        /**
+         * Your unique MANGOPAY reference which you should use when contacting us
+         */
+        CompanyReference: string;
+      }
+      interface UpdateClient {
+        /**
+         * The primary branding colour to use for buttons for your merchant
+         */
+        PrimaryButtonColour?: string;
+        /**
+         * The primary branding colour to use for your merchant
+         */
+        PrimaryThemeColour?: string;
+        /**
+         * A list of email addresses to use when contacting you for admin/commercial issues/communications
+         */
+        AdminEmails?: string[];
+        /**
+         * A list of email addresses to use when contacting you for technical issues/communications
+         */
+        TechEmails?: string[];
+        /**
+         * A list of email addresses to use when contacting you for billing issues/communications
+         */
+        BillingEmails?: string[];
+        /**
+         * A list of email addresses to use when contacting you for fraud/compliance issues/communications
+         */
+        FraudEmails?: string[];
+        /**
+         * The address of the company’s headquarters
+         */
+        HeadquartersAddress?: Address.AddressType;
+        /**
+         * The tax (or VAT) number for your company
+         */
+        TaxNumber?: string;
+        /**
+         * The type of platform
+         */
+        PlatformType?: PlatformType;
+        /**
+         * A description of what your platform does
+         */
+        PlatformDescription?: string;
+        /**
+         * The URL for your website
+         */
+        PlatformURL?: string;
+      }
+
+      interface UpdateClientLogo {
+        /**
+         * The base64 encoded file which needs to be uploaded
+         */
+        File: string;
+      }
+    }
+
+    class Client extends BaseEntity<Client.ClientData> {
+      constructor(data?: Partial<Client.ClientData>);
+    }
+    interface Client extends ClientData {}
+
+    class PlatformCategorization extends BaseEntity<
+      Client.PlatformCategorization
+    > {
+      constructor(data: Client.PlatformCategorization);
+    }
+
+    namespace Transfer {
+      interface TransferData extends EntityBase.EntityBaseData {
+        /**
+         * Information about the funds that are being debited
+         */
+        DebitedFunds: MoneyData;
+        /**
+         * Details about the funds that are being credited (DebitedFunds – Fees = CreditedFunds)
+         */
+        CreditedFunds: MoneyData;
+        /**
+         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
+         */
+        Fees: MoneyData;
+        /**
+         * The ID of the wallet that was debited
+         */
+        DebitedWalletId: string;
+        /**
+         * The ID of the wallet where money will be credited
+         */
+        CreditedWalletId: string;
+        /**
+         * A user's ID
+         */
+        AuthorId: string;
+        /**
+         * The user ID who is credited (defaults to the owner of the wallet)
+         */
+        CreditedUserId: string;
+        /**
+         * The nature of the transaction
+         */
+        Nature: Transaction.TransactionNature;
+        /**
+         * The status of the transaction
+         */
+        Status: Transaction.TransactionStatus;
+        /**
+         * When the transaction happened
+         */
+        ExecutionDate: Timestamp;
+        /**
+         * The result code
+         */
+        ResultCode: string;
+        /**
+         * A verbal explanation of the ResultCode
+         */
+        ResultMessage: string;
+        /**
+         * The type of the transaction
+         */
+        Type: "TRANSFER";
+      }
+
+      interface CreateTransfer {
+        /**
+         * Custom data that you can add to this item
+         */
+        Tag?: string;
+
+        /**
+         * A user's ID
+         */
+        AuthorId: string;
+
+        /**
+         * The user ID who is credited (defaults to the owner of the wallet)
+         */
+        CreditedUserId?: string;
+
+        /**
+         * Information about the funds that are being debited
+         */
+        DebitedFunds: MoneyData;
+        /**
+         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
+         */
+        Fees: MoneyData;
+        /**
+         * The ID of the wallet that was debited
+         */
+        DebitedWalletId: string;
+        /**
+         * The ID of the wallet where money will be credited
+         */
+        CreditedWalletId: string;
+      }
+    }
+
+    class Transfer extends BaseEntity<Transfer.TransferData> {
+      constructor(data: Partial<Transfer.CreateTransfer>);
+    }
+
+    interface Transfer extends Transfer.TransferData {}
+
+    namespace PayOut {
+      interface PayOutData extends Transfer.TransferData {
+        /**
+         * The type of the transaction
+         */
+        Type: "PAYOUT";
+
+        PaymentType: IPayOutPaymentType["BankWire"];
+        /**
+         * An ID of a Bank Account
+         */
+        BankAccountId: string;
+        /**
+         * A custom reference you wish to appear on the user’s bank statement (your Client Name is already shown). This reference can contain max 12 characters
+         */
+        BankWireRef: string;
+      }
+
+      interface CreatePayOut {
+        /**
+         * A user's ID
+         */
+        AuthorId: string;
+        /**
+         * Information about the funds that are being debited
+         */
+        DebitedFunds: MoneyData;
+        /**
+         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
+         */
+        Fees: MoneyData;
+        /**
+         * An ID of a Bank Account
+         */
+        BankAccountId: string;
+        /**
+         * The ID of the wallet that was debited
+         */
+        DebitedWalletId: string;
+        /**
+         * A custom reference you wish to appear on the user’s bank statement (your Client Name is already shown). This reference can contain max 12 characters
+         */
+        BankWireRef?: string;
+        Tag?: string;
+      }
+    }
+    class PayOut extends BaseEntity<PayOut.PayOutData> {
+      constructor(data: Partial<PayOut.CreatePayOut>);
+    }
+    // interface PayOut extends PayOut.PayoutData {}
+
+    class PayOutPaymentDetails extends BaseEntity<any> {
+      constructor(data?: any);
+    }
+
+    class PayOutPaymentDetailsBankWire extends PayOutPaymentDetails {
+      constructor(data?: any);
+    }
   }
 
   class Users {
@@ -2635,5 +2960,129 @@ declare namespace MangoPay {
      * @param options
      */
     get: MethodOverload<string, models.Refund.RefundData>;
+  }
+
+  class Clients {
+    /**
+     * Get the client
+     * @return {Object}        Request promise
+     */
+    get: NoArgMethodOverload<models.Client.ClientData>;
+    /**
+     * Update the client
+     * @param client
+     * @param options
+     */
+    update: MethodOverload<
+      models.Client.UpdateClient,
+      models.Client.ClientData
+    >;
+    /**
+     * Upload client logo from base64 image string
+     * @param base64Logo
+     * @param options
+     */
+    uploadLogo: MethodOverload<string, models.Client.ClientData>;
+    /**
+     * Upload client logo from file path
+     * @param {string}  filePath                    File path
+     * @param {Object} options                  Request options
+     */
+    uploadLogoFromFile: MethodOverload<string, models.Client.ClientData>;
+    /**
+     * Get all client wallets
+     * @param {Object} options                  Request options
+     */
+    getClientWallets: NoArgMethodOverload<models.Wallet.ClientWalletData[]>;
+    /**
+     * Get a client wallet
+     * @param fundsType    Wallet's funds type
+     * @param currency     Currency of the wallet
+     * @param options      Request options
+     */
+    getClientWallet: TwoArgsMethodOverload<
+      models.Wallet.ClientFundsType,
+      CurrencyISO,
+      models.Wallet.ClientWalletData
+    >;
+    /**
+     * Get client wallets by the type of funds
+     * @param fundsType
+     * @param options
+     */
+    getClientWalletsByFundsType: MethodOverload<
+      models.Wallet.ClientFundsType,
+      models.Wallet.ClientWalletData[]
+    >;
+    /**
+     * Get a client wallet's transactions
+     * @param fundsType
+     * @param currency
+     * @param options
+     */
+    getClientWalletTransactions: TwoArgsMethodOverload<
+      models.Wallet.ClientFundsType,
+      CurrencyISO,
+      models.Transaction.TransactionData[]
+    >;
+  }
+
+  class PayOuts {
+    /**
+     * Create new pay-out
+     * @param payOut
+     * @param options
+     */
+    create: MethodOverload<
+      models.PayOut.CreatePayOut,
+      models.PayOut.PayOutData
+    >;
+    /**
+     * Get payout
+     * @param payOutId
+     * @param options
+     */
+    get: MethodOverload<string, models.PayOut.PayOutData>;
+    /**
+     * Gets list of Refunds of a PayOut
+     * @param payOutId
+     * @param options
+     */
+    getRefunds: MethodOverload<string, models.Refund.RefundData[]>;
+  }
+
+  class Transfers {
+    /**
+     * Create new transfer
+     * @param transfer
+     * @param options
+     */
+    create: MethodOverload<
+      models.Transfer.CreateTransfer,
+      models.Transfer.TransferData
+    >;
+    /**
+     * Get transfer
+     * @param transferId
+     * @param options
+     */
+    get: MethodOverload<string, models.Transfer.TransferData>;
+    /**
+     * Create refund for transfer object
+     * @param transferId
+     * @param refund
+     * @param options
+     */
+    createRefund: TwoArgsMethodOverload<
+      string,
+      models.Refund.CreateTransferRefund,
+      models.Refund.RefundData
+    >;
+    /**
+     * Gets list of Refunds of a Transfer
+     * @param transferId
+     * @param options
+     */
+    getRefunds: MethodOverload<string, models.Refund.RefundData[]>;
   }
 }

@@ -127,71 +127,73 @@ api.Users.createBankAccount("user-id", {
   const d = data; // $ExpectType GBData
 });
 
-api.Users.getBankAccount("userId", "bankAccountId").then(data => {
+api.Users.getBankAccount("user-id", "bankAccount-id").then(data => {
   const d = data; // $ExpectType Data
 });
 
-api.Users.getBankAccounts("userId").then(data => {
+api.Users.getBankAccounts("user-id").then(data => {
   const d = data; // $ExpectType Data[]
 });
 
-api.Users.deactivateBankAccount("userId", "bankAccountId").then(data => {
+api.Users.deactivateBankAccount("user-id", "bankAccount-id").then(data => {
   const d = data; // $ExpectType void
 });
 
-api.Users.getTransactions("userId").then(data => {
+api.Users.getTransactions("user-id").then(data => {
   const d = data; // $ExpectType TransactionData[]
 });
 
-api.Users.getWallets("userId").then(data => {
+api.Users.getWallets("user-id").then(data => {
   const d = data; // $ExpectType WalletData[]
 });
 
-api.Users.getCards("userId").then(data => {
+api.Users.getCards("user-id").then(data => {
   const d = data; // $ExpectType CardData[]
 });
 
-api.Users.createKycDocument("userId", { Type: "ADDRESS_PROOF" }).then(data => {
+api.Users.createKycDocument("user-id", { Type: "ADDRESS_PROOF" }).then(data => {
   const d = data; // $ExpectType KycDocumentData
 });
 
-api.Users.getKycDocuments("userId").then(data => {
+api.Users.getKycDocuments("user-id").then(data => {
   const d = data; // $ExpectType KycDocumentData[]
 });
 
-api.Users.getKycDocument("userId", "kycDocumentId").then(data => {
+api.Users.getKycDocument("user-id", "kycDocument-id").then(data => {
   const d = data; // $ExpectType KycDocumentData
 });
 
-api.Users.updateKycDocument("userId", { Status: "VALIDATION_ASKED" }).then(
+api.Users.updateKycDocument("user-id", { Status: "VALIDATION_ASKED" }).then(
   data => {
     const d = data; // $ExpectType KycDocumentData
   }
 );
 
-api.Users.createKycPage("userId", "kycDocumentId", {
+api.Users.createKycPage("user-id", "kycDocument-id", {
   File: "...base64data..."
 }).then(data => {
   const d = data; // $ExpectType KycDocumentData
 });
 
-api.Users.createKycPageFromFile("userId", "kycDocumentId", "path/to/file").then(
-  data => {
-    const d = data; // $ExpectType KycDocumentData
-  }
-);
+api.Users.createKycPageFromFile(
+  "user-id",
+  "kyc-document-id",
+  "path/to/file"
+).then(data => {
+  const d = data; // $ExpectType KycDocumentData
+});
 
-api.Users.getEMoney("userId").then(data => {
+api.Users.getEMoney("user-id").then(data => {
   const d = data; // $ExpectType EMoneyData
 });
 
-api.Users.createUboDeclaration("userId", { DeclaredUBOs: ["user1"] }).then(
+api.Users.createUboDeclaration("user-id", { DeclaredUBOs: ["user1"] }).then(
   data => {
     const d = data; // $ExpectType UboDeclarationData
   }
 );
 
-api.Users.getPreAuthorizations("userId").then(data => {
+api.Users.getPreAuthorizations("user-id").then(data => {
   const d = data; // $ExpectType CardPreAuthorizationData[]
 });
 
@@ -233,7 +235,7 @@ api.BankAccounts.getTransactions("account-id").then(data => {
 api.Wallets.create({
   Currency: "GBP",
   Description: "A description",
-  Owners: ["userId"]
+  Owners: ["user-id"]
 }).then(data => {
   const d = data; // $ExpectType WalletData
 });
@@ -241,7 +243,7 @@ api.Wallets.create({
 const wallet = new MangoPay.models.Wallet({
   Currency: "GB",
   Description: "A description",
-  Owners: ["userId"]
+  Owners: ["user-id"]
 });
 
 api.Wallets.create(wallet).then(data => {
@@ -254,11 +256,11 @@ api.Wallets.update({
   const d = data; // $ExpectType WalletData
 });
 
-api.Wallets.get("walletId").then(data => {
+api.Wallets.get("wallet-id").then(data => {
   const d = data; // $ExpectType WalletData
 });
 
-api.Wallets.getTransactions("walletId").then(data => {
+api.Wallets.getTransactions("wallet-id").then(data => {
   const d = data; // $ExpectType TransactionData[]
 });
 
@@ -276,7 +278,7 @@ api.Cards.update({ Active: false, Id: "card-id" }).then(data => {
   const d = data; // $ExpectType CardData
 });
 
-api.Cards.getTransactions("cardId").then(data => {
+api.Cards.getTransactions("card-id").then(data => {
   const d = data; // $ExpectType TransactionData[]
 });
 
@@ -322,7 +324,7 @@ api.CardPreAuthorizations.update({
 
 /* Refunds */
 
-api.Refunds.get("refundId").then(data => {
+api.Refunds.get("refund-id").then(data => {
   const d = data; // $ExpectType RefundData
 });
 
@@ -331,9 +333,9 @@ api.Refunds.get("refundId").then(data => {
 api.PayIns.create({
   PaymentType: "CARD",
   ExecutionType: "DIRECT",
-  AuthorId: "userId",
-  CardId: "cardId",
-  CreditedWalletId: "walletId",
+  AuthorId: "user-id",
+  CardId: "card-id",
+  CreditedWalletId: "wallet-id",
   Fees: { Amount: 100, Currency: "GBP" },
   DebitedFunds: { Amount: 2000, Currency: "GBP" },
   SecureModeReturnURL: "https://secure-return.co"
@@ -344,8 +346,8 @@ api.PayIns.create({
 api.PayIns.create({
   PaymentType: "CARD",
   ExecutionType: "WEB",
-  AuthorId: "userId",
-  CreditedWalletId: "walletId",
+  AuthorId: "user-id",
+  CreditedWalletId: "wallet-id",
   Fees: { Amount: 100, Currency: "GBP" },
   DebitedFunds: { Amount: 2000, Currency: "GBP" },
   ReturnURL: "https://secure-return.co",
@@ -355,14 +357,93 @@ api.PayIns.create({
   const d = data; // $ExpectType CardWebPayInData
 });
 
-api.PayIns.get("payInId").then(data => {
+api.PayIns.get("payin-id").then(data => {
   const d = data; // $ExpectType PayInData
 });
 
-api.PayIns.createRefund("payInId", { AuthorId: "user-id" }).then(data => {
+api.PayIns.createRefund("payin-id", { AuthorId: "user-id" }).then(data => {
   const d = data; // $ExpectType RefundData
 });
 
-api.PayIns.getRefunds("payInId").then(data => {
+api.PayIns.getRefunds("payin-id").then(data => {
+  const d = data; // $ExpectType RefundData[]
+});
+
+/* Clients */
+api.Clients.get().then(data => {
+  const d = data; // $ExpectType ClientData
+});
+
+api.Clients.update({ PlatformType: "CROWDFUNDING_DONATION" }).then(data => {
+  const d = data; // $ExpectType ClientData
+});
+
+api.Clients.uploadLogo("...logobase64...").then(data => {
+  const d = data; // $ExpectType ClientData
+});
+
+api.Clients.uploadLogoFromFile("path/to/file").then(data => {
+  const d = data; // $ExpectType ClientData
+});
+
+api.Clients.getClientWallets().then(data => {
+  const d = data; // $ExpectType ClientWalletData[]
+});
+
+api.Clients.getClientWallet("CREDIT", "GBP").then(data => {
+  const d = data; // $ExpectType ClientWalletData
+});
+
+api.Clients.getClientWalletsByFundsType("FEES").then(data => {
+  const d = data; // $ExpectType ClientWalletData[]
+});
+
+api.Clients.getClientWalletTransactions("CREDIT", "GBP").then(data => {
+  const d = data; // $ExpectType TransactionData[]
+});
+
+/* PayOuts */
+
+api.PayOuts.create({
+  Fees: { Amount: 0, Currency: "GBP" },
+  AuthorId: "user-id",
+  DebitedFunds: { Amount: 2000, Currency: "GBP" },
+  BankAccountId: "bank-id",
+  DebitedWalletId: "wallet-id"
+}).then(data => {
+  const d = data; // $ExpectType PayOutData
+});
+
+api.PayOuts.get("payout-id").then(data => {
+  const d = data; // $ExpectType PayOutData
+});
+
+api.PayOuts.getRefunds("payout-id").then(data => {
+  const d = data; // $ExpectType RefundData[]
+});
+
+/* Transfers */
+
+api.Transfers.create({
+  Fees: { Amount: 0, Currency: "GBP" },
+  AuthorId: "user-id",
+  DebitedFunds: { Amount: 2000, Currency: "GBP" },
+  DebitedWalletId: "debit-wallet-id",
+  CreditedWalletId: "credit-wallet-id"
+}).then(data => {
+  const d = data; // $ExpectType TransferData
+});
+
+api.Transfers.get("transfer-id").then(data => {
+  const d = data; // $ExpectType TransferData
+});
+
+api.Transfers.createRefund("transfer-id", { AuthorId: "user-id" }).then(
+  data => {
+    const d = data; // $ExpectType RefundData
+  }
+);
+
+api.Transfers.getRefunds("transfer-id").then(data => {
   const d = data; // $ExpectType RefundData[]
 });
