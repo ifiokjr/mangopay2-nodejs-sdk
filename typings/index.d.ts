@@ -23,6 +23,8 @@ declare class MangoPay {
   requestOptions: MangoPay.RequestOptions;
   Users: MangoPay.Users;
   BankAccounts: MangoPay.BankAccounts;
+  BankingAliases: MangoPay.BankingAliases;
+  DisputeDocuments: MangoPay.DisputeDocuments;
   Wallets: MangoPay.Wallets;
   KycDocuments: MangoPay.KycDocuments;
   UboDeclarations: MangoPay.UboDeclarations;
@@ -543,6 +545,63 @@ declare namespace MangoPay {
     }
     interface Address extends Address.AddressData {}
 
+    namespace BankingAlias {
+      type BankingAliasType = "IBAN";
+      interface BankingAliasData extends EntityBase.EntityBaseData {
+        /**
+         * The user ID who is credited (defaults to the owner of the wallet)
+         */
+        CreditedUserId: string;
+        /**
+         * The ID of a wallet
+         */
+        WalletId: string;
+        /**
+         * The Country of the Address
+         */
+        Country: CountryISO;
+        /**
+         * The type of banking alias (note that only IBAN is available at present)
+         */
+        Type: BankingAliasType;
+        /**
+         * The owner of the wallet/banking alias
+         */
+        OwnerName: string;
+        /**
+         * Whether the banking alias is active or not
+         */
+        Active: boolean;
+      }
+
+      interface IBANBankingAliasData extends BankingAliasData {
+        /**
+         * The type of banking alias (note that only IBAN is available at present)
+         */
+        Type: "IBAN";
+        /**
+         * The IBAN of the banking alias
+         */
+        IBAN: string;
+        /**
+         * The BIC of the banking alias
+         */
+        BIC: string;
+      }
+
+      interface CreateIBANBankingAlias
+        extends Pick<IBANBankingAliasData, "OwnerName" | "Country">,
+          Partial<Pick<IBANBankingAliasData, "Tag" | "CreditedUserId">> {}
+    }
+
+    class BankingAlias extends EntityBase<BankingAlias.IBANBankingAliasData> {
+      constructor(data: Partial<BankingAlias.BankingAliasData>);
+    }
+
+    class BankingAliasIBAN extends BankingAlias {}
+
+    interface BankingAlias extends BankingAlias.IBANBankingAliasData {}
+
     namespace BankAccount {
       type BankAccountType = "IBAN" | "GB" | "US" | "CA" | "OTHER";
       type DepositAccountType = "CHECKING" | "SAVINGS";
@@ -901,6 +960,121 @@ declare namespace MangoPay {
       constructor(data: Wallet.CreateWallet | Wallet.UpdateWallet);
     }
 
+    namespace DisputeDocument {
+      type DisputeDocumentType =
+        | "DELIVERY_PROOF"
+        | "INVOICE"
+        | "REFUND_PROOF"
+        | "USER_CORRESPONDANCE"
+        | "USER_ACCEPTANCE_PROOF"
+        | "PRODUCT_REPLACEMENT_PROOF"
+        | "OTHER";
+
+      type DocumentStatus =
+        | "CREATED"
+        | "VALIDATION_ASKED"
+        | "VALIDATED"
+        | "REFUSED";
+
+      type RefusedReasonType =
+        | "DOCUMENT_UNREADABLE"
+        | "DOCUMENT_NOT_ACCEPTED"
+        | "DOCUMENT_HAS_EXPIRED"
+        | "DOCUMENT_INCOMPLETE"
+        | "DOCUMENT_MISSING"
+        | "SPECIFIC_CASE"
+        | "DOCUMENT_FALSIFIED"
+        | "OTHER";
+
+      interface DisputeDocumentData extends EntityBase.EntityBaseData {
+        /**
+         * Gives the type of the KYC document
+         */
+        Type: DisputeDocumentType;
+
+        /**
+         * The object owner's UserId
+         */
+        UserId: string;
+
+        /**
+         * The Id of a Dispute
+         */
+        DisputeId: string;
+
+        /**
+         * The status of this KYC/Dispute document
+         */
+        Status: DocumentStatus;
+
+        /**
+         * The message accompanying a refusal
+         */
+        RefusedReasonMessage: string;
+
+        /**
+         * The type of reason for refusal
+         */
+        RefusedReasonType: RefusedReasonType;
+
+        /**
+         * The date when the document was processed by MANGOPAY
+         */
+        ProcessedDate: Timestamp;
+      }
+      interface CreateDisputeDocument {
+        /**
+         * Gives the type of the KYC document
+         */
+        Type: DisputeDocumentType;
+        Tag?: string;
+      }
+      interface SubmitDisputeDocument {
+        /**
+         * The status of this KYC/Dispute document
+         */
+        Status: "VALIDATION_ASKED";
+        Tag?: string;
+      }
+
+      /**
+       * - Documents have to be in "CREATED" Status
+       * - You can create as many pages as needed
+       *
+       * Remember to change Status to "VALIDATION_ASKED" to submit KYC documents
+       * The maximum size per page is about 7Mb (or 10Mb when base64encoded). The following formats are accepted for the documents : .pdf, .jpeg, .jpg, .gif and .png. The minimum size is 1Kb.
+       */
+      interface CreateDisputePage {
+        /**
+         * The base64 encoded file which needs to be uploaded
+         *
+         * You need to fill in only the binary code. Do not send the first part that some converters add into the binary code which is
+         * `<img src=" data:image/png;base64..." />`
+         *
+         * e.g.
+         * ```json
+         * {
+         *   "File": "/9j/4AAQSkZJRgABAQEBLAEsAAD/.../wgARCAAyADIDAREAAhEBAxEB/8QAGwAAAgMBAQEA"
+         * }
+         * ```
+         */
+        File: string;
+      }
+    }
+
+    class Document extends BaseEntity<any> {
+      constructor(data: any);
+    }
+
+    class DisputeDocument extends Document {}
+
+    interface DisputeDocument extends DisputeDocument.DisputeDocumentData {}
+
+    class DisputeDocumentPage extends BaseEntity<any> {
+      constructor(data: CreateDisputePage);
+    }
+    interface DisputeDocumentPage extends DisputeDocument.CreateDisputePage {}
+
     namespace KycDocument {
       type KycDocumentType =
         | "IDENTITY_PROOF"
@@ -913,6 +1087,19 @@ declare namespace MangoPay {
         | "VALIDATION_ASKED"
         | "VALIDATED"
         | "REFUSED";
+
+      type KYCDocumentRefusedReasonType =
+        | "DOCUMENT_UNREADABLE"
+        | "DOCUMENT_NOT_ACCEPTED"
+        | "DOCUMENT_HAS_EXPIRED"
+        | "DOCUMENT_INCOMPLETE"
+        | "DOCUMENT_MISSING"
+        | "DOCUMENT_DO_NOT_MATCH_USER_DATA"
+        | "DOCUMENT_DO_NOT_MATCH_ACCOUNT_DATA"
+        | "SPECIFIC_CASE"
+        | "DOCUMENT_FALSIFIED"
+        | "UNDERAGE_PERSON"
+        | "SPECIFIC_CASE";
 
       interface KycDocumentData extends EntityBase.EntityBaseData {
         /**
@@ -938,12 +1125,12 @@ declare namespace MangoPay {
         /**
          * The type of reason for refusal
          */
-        RefusedReasonType: KYCDocRefusedReasonType;
+        RefusedReasonType: KYCDocumentRefusedReasonType;
 
         /**
          * The date when the document was processed by MANGOPAY
          */
-        ProcessedDate: timestamp;
+        ProcessedDate: Timestamp;
       }
       interface CreateKycDocument {
         /**
@@ -3085,5 +3272,78 @@ declare namespace MangoPay {
      * @param options
      */
     getRefunds: MethodOverload<string, Models.Refund.RefundData[]>;
+  }
+
+  class BankingAliases {
+    /**
+     * Create a banking alias
+     * @param bankingAlias
+     * @param options
+     */
+    create: MethodOverload<
+      Models.BankingAlias.CreateIBANBankingAlias,
+      Models.BankingAlias.IBANBankingAliasData
+    >;
+    /**
+     * Get a banking alias
+     * @param bankingAliasId
+     * @param options
+     */
+    get: MethodOverload<string, Models.BankingAlias.IBANBankingAliasData>;
+    /**
+     * Get all banking aliases
+     * @param options
+     */
+    getAll: NoArgMethodOverload<Models.BankingAlias.IBANBankingAliasData[]>;
+    /**
+     * Update banking alias
+     * @param bankingAliasId
+     * @param options
+     */
+    update: MethodOverload<
+      Partial<
+        Omit<Models.BankingAlias.CreateIBANBankingAlias, "CreditedUserId">
+      >,
+      Models.BankingAlias.IBANBankingAliasData
+    >;
+    /**
+     * Deactivate banking alias
+     * @param bankingAliasId
+     * @param options
+     */
+    deactivate: MethodOverload<
+      string,
+      Models.BankingAlias.IBANBankingAliasData
+    >;
+    /**
+     * Activate banking alias
+     * @param bankingAliasId
+     * @param options
+     */
+    activate: MethodOverload<string, Models.BankingAlias.IBANBankingAliasData>;
+  }
+
+  class DisputeDocuments {
+    /**
+     * Get all KycDocuments
+     * @param options
+     */
+    getAll: NoArgMethodOverload<Models.DisputeDocument.DisputeDocumentData[]>;
+
+    /**
+     * Get KycDocument
+     * @param documentId
+     * @param options
+     */
+    get: MethodOverload<string, Models.DisputeDocument.DisputeDocumentData>;
+
+    /**
+     * Creates temporary URLs where each page of a KYC document can be viewed.
+     * @param documentId
+     */
+    createDisputeDocumentConsult: MethodOverload<
+      string,
+      any // Unsure of data structure from docs
+    >;
   }
 }

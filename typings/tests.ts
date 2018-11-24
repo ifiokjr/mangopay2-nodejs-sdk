@@ -461,3 +461,42 @@ api.Transfers.createRefund("transfer-id", { AuthorId: "user-id" }).then(
 api.Transfers.getRefunds("transfer-id").then(data => {
   const d = data; // $ExpectType RefundData[]
 });
+
+/* BankingAliases */
+
+api.BankingAliases.create({
+  Country: "GB",
+  CreditedUserId: "user-id",
+  OwnerName: "owner-id"
+}).then(data => {
+  const d = data; // $ExpectType IBANBankingAliasData
+});
+api.BankingAliases.get("alias-id").then(data => {
+  const d = data; // $ExpectType IBANBankingAliasData
+});
+api.BankingAliases.getAll().then(data => {
+  const d = data; // $ExpectType IBANBankingAliasData[]
+});
+api.BankingAliases.update({ OwnerName: "some-name" }).then(data => {
+  const d = data; // $ExpectType IBANBankingAliasData
+});
+api.BankingAliases.deactivate("alias-id").then(data => {
+  const d = data; // $ExpectType IBANBankingAliasData
+});
+api.BankingAliases.activate("alias-id").then(data => {
+  const d = data; // $ExpectType IBANBankingAliasData
+});
+
+/* DisputeDocuments */
+
+api.DisputeDocuments.getAll().then(data => {
+  const d = data; // $ExpectType DisputeDocumentData[]
+});
+
+api.DisputeDocuments.get("dispute-id").then(data => {
+  const d = data; // $ExpectType DisputeDocumentData
+});
+
+api.DisputeDocuments.createDisputeDocumentConsult("dispute-id").then(data => {
+  const d = data; // TODO unsure of expected type
+});
