@@ -36,6 +36,11 @@ declare class MangoPay {
   PayOuts: MangoPay.PayOuts;
   Refunds: MangoPay.Refunds;
   Clients: MangoPay.Clients;
+  Disputes: MangoPay.Disputes;
+  Repudiations: MangoPay.Repudiations;
+  Events: MangoPay.Events;
+  Responses: MangoPay.Responses;
+
   models: typeof MangoPay.Models;
 
   Log(...args: any[]): void;
@@ -486,7 +491,7 @@ declare namespace MangoPay {
     }
     const UserNaturalCapacity: IUserNaturalCapacity;
 
-    class DeclaredUbo extends Models<UboDeclaration.UboDeclarationData> {
+    class DeclaredUbo extends Model<UboDeclaration.UboDeclarationData> {
       constructor(data: Partial<UboDeclaration.UboDeclarationData>);
     }
 
@@ -497,7 +502,7 @@ declare namespace MangoPay {
         CreationDate: number;
       }
     }
-    class EntityBase<T extends EntityBase.EntityBaseData> extends Models<T> {
+    class EntityBase<T extends EntityBase.EntityBaseData> extends Model<T> {
       initialize(): void;
 
       /**
@@ -1044,7 +1049,7 @@ declare namespace MangoPay {
        * Remember to change Status to "VALIDATION_ASKED" to submit KYC documents
        * The maximum size per page is about 7Mb (or 10Mb when base64encoded). The following formats are accepted for the documents : .pdf, .jpeg, .jpg, .gif and .png. The minimum size is 1Kb.
        */
-      interface CreateDisputePage {
+      interface CreateDisputeDocumentPage {
         /**
          * The base64 encoded file which needs to be uploaded
          *
@@ -1060,7 +1065,25 @@ declare namespace MangoPay {
          */
         File: string;
       }
+
+      interface DocumentPageConsult {
+        /**
+         * URL where this document page can be viewed.
+         */
+        Url: string;
+
+        /**
+         * Time in millis when the page consult will expire.
+         */
+        ExpirationDate: Timestamp;
+      }
     }
+
+    class DocumentPageConsult extends Model<any> {
+      constructor(data: Partial<DisputeDocument.DocumentPageConsult>);
+    }
+
+    interface DocumentPageConsult extends DisputeDocument.DocumentPageConsult {}
 
     class Document extends BaseEntity<any> {
       constructor(data: any);
@@ -1073,7 +1096,8 @@ declare namespace MangoPay {
     class DisputeDocumentPage extends BaseEntity<any> {
       constructor(data: CreateDisputePage);
     }
-    interface DisputeDocumentPage extends DisputeDocument.CreateDisputePage {}
+    interface DisputeDocumentPage
+      extends DisputeDocument.CreateDisputeDocumentPage {}
 
     namespace KycDocument {
       type KycDocumentType =
@@ -2210,59 +2234,11 @@ declare namespace MangoPay {
       interface RefundReason {
         RefundReasonType: RefundReasonType;
       }
-      interface RefundData {
-        /**
-         * Information about the funds that are being debited
-         */
-        DebitedFunds: MoneyData;
-        /**
-         * Details about the funds that are being credited (DebitedFunds – Fees = CreditedFunds)
-         */
-        CreditedFunds: MoneyData;
-        /**
-         * Information about the fees that were taken by the client for this transaction (and were hence transferred to the Client's platform wallet)
-         */
-        Fees: MoneyData;
-        /**
-         * The ID of the wallet that was debited
-         */
-        DebitedWalletId: string;
-        /**
-         * The ID of the wallet where money will be credited
-         */
-        CreditedWalletId: string;
-        /**
-         * A user's ID
-         */
-        AuthorId: string;
-        /**
-         * The user ID who is credited (defaults to the owner of the wallet)
-         */
-        CreditedUserId: string;
+      interface RefundData extends Transaction.TransactionData {
         /**
          * The nature of the transaction
          */
-        Nature: Transacion.TransactionNature;
-        /**
-         * The status of the transaction
-         */
-        Status: Transaction.TransactionStatus;
-        /**
-         * When the transaction happened
-         */
-        ExecutionDate: Timestamp;
-        /**
-         * The result code
-         */
-        ResultCode: string;
-        /**
-         * A verbal explanation of the ResultCode
-         */
-        ResultMessage: string;
-        /**
-         * The type of the transaction
-         */
-        Type: Transaction.TransactionType;
+        Nature: "REFUND";
         /**
          * The initial transaction ID
          */
@@ -2295,6 +2271,33 @@ declare namespace MangoPay {
     class RefundReasonDetails extends EntityBase<any> {
       constructor(data: any);
     }
+
+    namespace Repudiation {
+      interface RepudiationData extends Transaction.TransactionData {
+        /**
+         * The nature of the transaction
+         */
+        Nature: "REPUDIATION";
+        /**
+         * The initial transaction ID
+         */
+        InitialTransactionId: string;
+        /**
+         * The initial transaction type
+         */
+        InitialTransactionType: Transaction.TransactionType;
+        /**
+         * Contains info about the reason for refund
+         */
+        RefundReason: RefundReason;
+      }
+    }
+
+    class Repudiation extends EntityBase<Repudiation.RepudiationData> {
+      constructor(data: Partial<Repudiation.RepudiationData>);
+    }
+
+    interface Repudiation extends Repudiation.RepudiationData {}
 
     namespace Client {
       type BusinessType =
@@ -2451,6 +2454,207 @@ declare namespace MangoPay {
     > {
       constructor(data: Client.PlatformCategorization);
     }
+
+    namespace Event {
+      type EventType =
+        | "PAYIN_NORMAL_CREATED"
+        | "PAYIN_NORMAL_SUCCEEDED"
+        | "PAYIN_NORMAL_FAILED"
+        | "PAYOUT_NORMAL_CREATED"
+        | "PAYOUT_NORMAL_SUCCEEDED"
+        | "PAYOUT_NORMAL_FAILED"
+        | "TRANSFER_NORMAL_CREATED"
+        | "TRANSFER_NORMAL_SUCCEEDED"
+        | "TRANSFER_NORMAL_FAILED"
+        | "PAYIN_REFUND_CREATED"
+        | "PAYIN_REFUND_SUCCEEDED"
+        | "PAYIN_REFUND_FAILED"
+        | "PAYOUT_REFUND_CREATED"
+        | "PAYOUT_REFUND_SUCCEEDED"
+        | "PAYOUT_REFUND_FAILED"
+        | "TRANSFER_REFUND_CREATED"
+        | "TRANSFER_REFUND_SUCCEEDED"
+        | "TRANSFER_REFUND_FAILED"
+        | "KYC_CREATED"
+        | "KYC_VALIDATION_ASKED"
+        | "KYC_SUCCEEDED"
+        | "KYC_FAILED"
+        | "PAYIN_REPUDIATION_CREATED"
+        | "PAYIN_REPUDIATION_SUCCEEDED"
+        | "PAYIN_REPUDIATION_FAILED"
+        | "DISPUTE_DOCUMENT_CREATED"
+        | "DISPUTE_DOCUMENT_VALIDATION_ASKED"
+        | "DISPUTE_DOCUMENT_SUCCEEDED"
+        | "DISPUTE_DOCUMENT_FAILED"
+        | "DISPUTE_CREATED"
+        | "DISPUTE_SUBMITTED"
+        | "DISPUTE_ACTION_REQUIRED"
+        | "DISPUTE_FURTHER_ACTION_REQUIRED"
+        | "DISPUTE_CLOSED"
+        | "DISPUTE_SENT_TO_BANK"
+        | "TRANSFER_SETTLEMENT_CREATED"
+        | "TRANSFER_SETTLEMENT_SUCCEEDED"
+        | "TRANSFER_SETTLEMENT_FAILED"
+        | "MANDATE_CREATED"
+        | "MANDATE_FAILED"
+        | "MANDATE_ACTIVATED"
+        | "MANDATE_SUBMITTED"
+        | "PREAUTHORIZATION_PAYMENT_WAITING"
+        | "PREAUTHORIZATION_PAYMENT_EXPIRED"
+        | "PREAUTHORIZATION_PAYMENT_CANCELED"
+        | "PREAUTHORIZATION_PAYMENT_VALIDATED"
+        | "UBO_DECLARATION_CREATED"
+        | "UBO_DECLARATION_VALIDATION_ASKED"
+        | "UBO_DECLARATION_REFUSED"
+        | "UBO_DECLARATION_VALIDATED";
+
+      interface EventData {
+        /**
+         * The ID of whatever the event is
+         */
+        ResourceId: string;
+        /**
+         * When the event happened
+         */
+        Date: Timestamp;
+        /**
+         * The event type
+         */
+        EventType: EventType;
+      }
+    }
+
+    namespace Dispute {
+      type DisputeReasonType =
+        | "DUPLICATE"
+        | "FRAUD"
+        | "PRODUCT_UNACCEPTABLE"
+        | "UNKNOWN"
+        | "OTHER"
+        | "REFUND_CONVERSION_RATE"
+        | "LATE_FAILURE_INSUFFICIENT_FUNDS"
+        | "LATE_FAILURE_CONTACT_USER"
+        | "LATE_FAILURE_BANKACCOUNT_CLOSED"
+        | "LATE_FAILURE_BANKACCOUNT_INCOMPATIBLE"
+        | "LATE_FAILURE_BANKACCOUNT_INCORRECT"
+        | "AUTHORISATION_DISPUTED"
+        | "TRANSACTION_NOT_RECOGNIZED"
+        | "PRODUCT_NOT_PROVIDED"
+        | "CANCELED_REOCCURING_TRANSACTION"
+        | "REFUND_NOT_PROCESSED";
+
+      type DisputeStatus =
+        | "CREATED"
+        | "PENDING_CLIENT_ACTION"
+        | "SUBMITTED"
+        | "PENDING_BANK_ACTION"
+        | "REOPENED_PENDING_CLIENT_ACTION"
+        | "CLOSED";
+
+      type DisputeType = "CONTESTABLE" | "NOT_CONTESTABLE" | "RETRIEVAL";
+
+      interface DisputeReason {
+        DisputeReasonType: DisputeReasonType;
+        DisputeReasonMessage: string;
+      }
+
+      interface DisputeData {
+        /**
+         * The initial transaction ID
+         */
+        InitialTransactionId: string;
+        /**
+         * The initial transaction type
+         */
+        InitialTransactionType: Transaction.TransactionType;
+        /**
+         * The result code
+         */
+        ResultCode: string;
+        /**
+         * A verbal explanation of the ResultCode
+         */
+        ResultMessage: string;
+        /**
+         * Info about the reason for the dispute
+         */
+        DisputeReason: DisputeReason;
+        /**
+         * The status of the dispute
+         */
+        Status: DisputeStatus;
+        /**
+         * Used to communicate information about the dispute status to you
+         */
+        StatusMessage: string;
+        /**
+         * The amount of funds that were disputed
+         */
+        DisputedFunds: MoneyData;
+        /**
+         * The amount you wish to contest
+         */
+        ContestedFunds: MoneyData;
+        /**
+         * The type of dispute
+         */
+        DisputeType: DisputeType;
+        /**
+         * The deadline by which you must contest the dispute (if you wish to contest it)
+         */
+        ContestDeadlineDate: Timestamp;
+        /**
+         * The ID of the associated repudiation transaction
+         */
+        RepudiationId: string;
+      }
+
+      interface SubmitDispute
+        extends Partial<Pick<DisputeData, "ContestedFunds">> {}
+
+      interface UpdateDispute extends Partial<Pick<DisputeData, "Tag">> {}
+    }
+
+    class Dispute extends EntityBase<Dispute.DisputeData> {
+      constructor(data: Partial<Dispute.DisputeData>);
+    }
+
+    interface Dispute extends Dispute.DisputeData {}
+
+    class DisputeReason extends Model<any> {
+      constructor(data: any);
+    }
+
+    interface DisputeReason extends Dispute.DisputeReason {}
+
+    namespace SettlementTransfer {
+      interface SettlementTransferData extends Refund.RefundData {
+        /**
+         * The nature of the transaction
+         */
+        Nature: "SETTLEMENT";
+        /**
+         * The ID of the associated repudiation transaction
+         */
+        RepudiationId: string;
+      }
+
+      interface CreateSettlementTransfer
+        extends Pick<
+            SettlementTransferData,
+            "AuthorId" | "DebitedFunds" | "Fees"
+          >,
+          Partial<Pick<SettlementTransferData, "Tag">> {}
+    }
+
+    class SettlementTransfer extends EntityBase<
+      SettlementTransfer.SettlementTransferData
+    > {
+      constructor(data: Partial<SettlementTransfer.SettlementTransferData>);
+    }
+
+    interface SettlementTransfer
+      extends SettlementTransfer.SettlementTransferData {}
 
     namespace Transfer {
       interface TransferData extends EntityBase.EntityBaseData {
@@ -3345,5 +3549,191 @@ declare namespace MangoPay {
       string,
       any // Unsure of data structure from docs
     >;
+  }
+
+  class Repudiations {
+    /**
+     * Gets list of Refunds of a Repudiation
+     * @param repudiationId
+     * @param options
+     */
+    getRefunds: MethodOverload<string, Models.Refund.RefundData[]>;
+  }
+
+  class Disputes {
+    /**
+     * Get dispute
+     * @param disputeId
+     * @param options
+     */
+    get: MethodOverload<string, Models.Dispute.DisputeData>;
+    /**
+     * Get all disputes
+     * @param options
+     */
+    getAll: NoArgMethodOverload<Models.Dispute.DisputeData[]>;
+    /**
+     * Update dispute's tag
+     * @param dispute
+     * @param options
+     */
+    update: MethodOverload<
+      Models.Dispute.UpdateDispute,
+      Models.Dispute.DisputeData
+    >;
+    /**
+     * Contest dispute
+     * @param disputeId
+     * @param contestedFunds
+     * @param options
+     */
+    contestDispute: TwoArgsMethodOverload<
+      string,
+      MoneyData,
+      Models.Dispute.DisputeData
+    >;
+    /**
+     * This method is used to resubmit a Dispute if it is reopened requiring more docs
+     * @param disputeId
+     * @param options
+     */
+    resubmitDispute: MethodOverload<string, Models.Dispute.DisputeData>;
+    /**
+     * Close dispute
+     * @param disputeId
+     * @param options
+     */
+    closeDispute: MethodOverload<string, Models.Dispute.DisputeData>;
+    /**
+     * Gets dispute's transactions
+     * @param disputeId
+     * @param options
+     */
+    getTransactions: MethodOverload<
+      string,
+      Models.Transaction.TransactionData[]
+    >;
+    /**
+     * Gets dispute's documents for wallet
+     * @param walletId
+     * @param options
+     */
+    getDisputesForWallet: MethodOverload<
+      string,
+      Models.Transaction.DisputeData[]
+    >;
+    /**
+     * Gets user's disputes
+     * @param userId
+     * @param options
+     */
+    getDisputesForUser: MethodOverload<string, Models.Dispute.DisputeData[]>;
+    /**
+     * Gets repudiation
+     * @param repudiationId
+     * @param options
+     */
+    getRepudiation: MethodOverload<
+      string,
+      Models.Repudiation.RepudiationData[]
+    >;
+    /**
+     * Creates settlement transfer
+     * @param settlementTransfer
+     * @param repudiationId
+     * @param options
+     */
+    createSettlementTransfer: TwoArgsMethodOverload<
+      Models.SettlementTransfer.CreateSettlementTransfer,
+      string,
+      Models.SettlementTransfer.SettlementTransferData
+    >;
+    /**
+     * Gets settlement transfer
+     * @param settlementTransferId
+     * @param options
+     */
+    getSettlementTransfer: MethodOverload<
+      string,
+      Models.SettlementTransfer.SettlementTransferData
+    >;
+    /**
+     * Gets documents for dispute
+     * @param disputeId
+     * @param options
+     */
+    getDocumentsForDispute: MethodOverload<
+      string,
+      Models.DisputeDocument.DisputeDocumentData[]
+    >;
+    /**
+     * Update dispute document
+     * @param disputeId
+     * @param disputeDocument
+     * @param options
+     */
+    updateDisputeDocument: TwoArgsMethodOverload<
+      string,
+      Partial<Models.DisputeDocument.DisputeDocumentData>,
+      Models.DisputeDocument.DisputeDocumentData
+    >;
+    /**
+     * Creates document for dispute
+     * @param disputeId
+     * @param disputeDocument
+     * @param options
+     */
+    createDisputeDocument: TwoArgsMethodOverload<
+      string,
+      Models.DisputeDocument.CreateDisputeDocument,
+      Models.DisputeDocument.DisputeDocumentData
+    >;
+    /**
+     * Creates document's page for dispute
+     * @param disputeId
+     * @param disputeDocumentId
+     * @param disputeDocumentPage
+     * @param options
+     */
+    createDisputeDocumentPage: ThreeArgsMethodOverload<
+      string,
+      string,
+      Models.DisputeDocument.CreateDisputeDocumentPage,
+      Models.DisputeDocument.DisputeDocumentData
+    >;
+    /**
+     * Creates document's page for dispute from file
+     * @param disputeId
+     * @param disputeDocumentId
+     * @param file
+     * @param options
+     */
+    createDisputeDocumentPageFromFile: ThreeArgsMethodOverload<
+      string,
+      string,
+      string,
+      Models.DisputeDocument.DisputeDocumentData
+    >;
+    /**
+     * Retrieve a list of Disputes pending settlement
+     * @param options
+     */
+    getPendingSettlement: NoArgMethodOverload<Models.Dispute.DisputeData[]>;
+  }
+
+  class Events {
+    /**
+     * Get events
+     * @param options
+     */
+    getAll: NoArgMethodOverload<Models.Event.EventData[]>;
+  }
+
+  class Responses {
+    /**
+     * Get response from previous call
+     * @param options
+     */
+    get: NoArgMethodOverload<any>;
   }
 }

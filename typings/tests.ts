@@ -493,10 +493,123 @@ api.DisputeDocuments.getAll().then(data => {
   const d = data; // $ExpectType DisputeDocumentData[]
 });
 
-api.DisputeDocuments.get("dispute-id").then(data => {
+api.DisputeDocuments.get("dispute-doc-id").then(data => {
   const d = data; // $ExpectType DisputeDocumentData
 });
 
-api.DisputeDocuments.createDisputeDocumentConsult("dispute-id").then(data => {
-  const d = data; // TODO unsure of expected type
+api.DisputeDocuments.createDisputeDocumentConsult("dispute-doc-id").then(
+  data => {
+    const d = data; // TODO unsure of expected type
+  }
+);
+
+/* Repudiations */
+
+api.Repudiations.getRefunds("repudiation-id").then(data => {
+  const d = data; // $Expect RefundData[]
+});
+
+/* Disputes */
+
+api.Disputes.get("dispute-id").then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.getAll().then(data => {
+  const d = data; // $Expect DisputeData[]
+});
+
+api.Disputes.update({ Tag: "any tags" }).then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.contestDispute("dispute-id", {
+  Amount: 1000,
+  Currency: "GBP"
+}).then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.resubmitDispute("dispute-id").then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.closeDispute("dispute-id").then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.getTransactions("dispute-id").then(data => {
+  const d = data; // $Expect TransactionData[]
+});
+
+api.Disputes.getDisputesForWallet("wallet-id").then(data => {
+  const d = data; // $Expect DisputeData[]
+});
+
+api.Disputes.getDisputesForUser("user-id").then(data => {
+  const d = data; // $Expect DisputeData[]
+});
+
+api.Disputes.getRepudiation("repudiation-id").then(data => {
+  const d = data; // $Expect RepudationData
+});
+
+api.Disputes.createSettlementTransfer(
+  {
+    AuthorId: "user-id",
+    DebitedFunds: { Amount: 1000, Currency: "GBP" },
+    Fees: { Amount: 200, Currency: "GBP" }
+  },
+  "repudiation-id"
+).then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.getSettlementTransfer("settlement-id").then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.getDocumentsForDispute("dispute-id").then(data => {
+  const d = data; // $Expect DisputeDocumentData[]
+});
+
+api.Disputes.updateDisputeDocument("dispute-id", { Tag: "update" }).then(
+  data => {
+    const d = data; // $Expect DisputeDocumentData
+  }
+);
+
+api.Disputes.createDisputeDocument("dispute-id", {
+  Type: "DELIVERY_PROOF"
+}).then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.createDisputeDocumentPage("dispute-id", "dispute-doc-id", {
+  File: "...base64string..."
+}).then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.createDisputeDocumentPageFromFile(
+  "dispute-id",
+  "dispute-doc-id",
+  "path/to/file"
+).then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+api.Disputes.getPendingSettlement().then(data => {
+  const d = data; // $Expect DisputeData
+});
+
+/* Events */
+
+api.Events.getAll().then(data => {
+  const d = data; // $Expect EventData[]
+});
+
+/* Responses */
+api.Responses.get().then(data => {
+  const d = data;
 });
